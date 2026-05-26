@@ -1,0 +1,106 @@
+{
+  "_comment": "Example AGS audit-log entry. Every decision (allow / deny / require_approval) produces one. Append-only; commitment-anchored. This is what auditors / regulators / post-mortem teams read.",
+
+  "audit_id": "ags.audit.2026-05-26T18-30-42-014Z.7f3a9c",
+  "ags_version": "0.1-draft",
+  "spine_instance_id": "ags-prod-us-east-1.0",
+  "recorded_at": "2026-05-26T18:30:42.014Z",
+  "recorded_at_nanoseconds_since_epoch": 1748284242014123000,
+
+  "principal": {
+    "identity": {
+      "type": "spiffe",
+      "id": "spiffe://charlesandroe.com/clawgentics/agent/yetti-v8-eval/instance-7c2f",
+      "attested_via": "spire-agent-v1.10.1",
+      "attestation_signature": "MEUCIQDxK...truncated...j8Aw==",
+      "tenant_id": "tenant.wesco.production",
+      "session_id": "sess.2026-05-26T17-42-15Z.x9k1"
+    },
+    "ring": 2,
+    "trust_score": 0.94,
+    "trust_score_inputs": {
+      "code_provenance": "signed",
+      "contributor_reputation": "established",
+      "drift_history_30d": "no_incidents",
+      "marketplace_metadata": {
+        "downloads_30d": 4821,
+        "time_in_production_days": 87
+      }
+    }
+  },
+
+  "action_requested": {
+    "type": "issue_approval",
+    "tool_name": "approval_engine.issue",
+    "target": {
+      "tenant_id": "tenant.wesco.production",
+      "approval_id": "approval.wesco.q2-2026.req-19483",
+      "approval_class": "purchase_order",
+      "value_usd": 127500.00
+    },
+    "context": {
+      "customer_tier": "enterprise",
+      "request_origin": "agent.hawk.standalone",
+      "business_hours": true,
+      "ip_country": "US"
+    }
+  },
+
+  "policy": {
+    "policy_name": "clawgentics-loa-production",
+    "policy_version": "1.3.0",
+    "policy_artifact_hash": "sha256:b7f3a9c2e8d4...8a3c",
+    "evaluator": "opa-1.69.0"
+  },
+
+  "decision": {
+    "outcome": "require_approval",
+    "matched_rule": "require-approval-large-value-approvals",
+    "rule_priority": 50,
+    "rationale": "action.value_usd ($127,500) > threshold ($100,000) — issue_approval requires sign-off",
+    "approvers_required": [
+      { "role": "vp_finance", "approver_id_options": ["principal.spiffe://charlesandroe.com/vp-finance/jdoe"] },
+      { "role": "cfo", "approver_id_options": ["principal.spiffe://charlesandroe.com/cfo/rebecca"] }
+    ],
+    "approval_timeout_minutes": 60,
+    "on_timeout": "escalate",
+    "evaluation_latency_ms": 2.7
+  },
+
+  "downstream_event_id": "ags.approval-flow.2026-05-26T18-30-42-014Z.a2c1",
+
+  "alerts_fired": [],
+
+  "tamper_evidence": {
+    "anchor_chain_id": "agschain.us-east.2026-05-26",
+    "previous_record_hash": "sha256:f8c3a2b7e1d4...9c4e",
+    "this_record_hash": "sha256:1a4f9c3b8e2d...7d6a",
+    "merkle_batch_id": "ags.merkle.2026-05-26T18-30.batch-487",
+    "merkle_root_at_close": "pending_batch_close",
+    "external_timestamp_anchor": {
+      "type": "RFC3161",
+      "tsa_url": "https://timestamp.charlesandroe.com",
+      "anchor_status": "pending"
+    }
+  },
+
+  "retention": {
+    "class": "SOC2_TypeII",
+    "retention_until": "2033-05-26T18:30:42Z",
+    "delete_eligibility_after": "2033-05-26T18:30:42Z",
+    "legal_hold": false
+  },
+
+  "_principle_mapping": {
+    "1_deterministic_policy": "decision.outcome = 'require_approval' produced by OPA evaluation in 2.7 ms; principal could not bypass",
+    "2_identity_per_agent": "principal.identity.id = SPIFFE per-agent ID; tenant_id is verified on the identity attestation",
+    "3_tamper_evident_audit": "tamper_evidence.this_record_hash chains to previous_record_hash; Merkle batch will be anchored to external TSA on close",
+    "4_policy_as_code": "policy.policy_version + policy_artifact_hash pin the exact rule set; reproducible audit five years later",
+    "5_privilege_rings": "principal.ring = 2 — captured in record; some actions only allowed for Ring 0",
+    "6_kill_switch_slo": "(not visible in single record; SLO monitoring queries aggregate this audit stream)",
+    "7_tool_poisoning_detection": "action.tool_name = 'approval_engine.issue' — present in signed tool manifest; verified at evaluation time",
+    "8_shadow_agent_discovery": "principal.identity.id is registered; (shadow-discovery would flag unregistered identities at scan time)",
+    "9_trust_scoring": "principal.trust_score = 0.94 with full input lineage; consumed by policy rules that gate on trust",
+    "10_governance_aware_training": "(not visible in single record; training-time provenance lives on the model side)"
+  }
+}
