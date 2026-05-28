@@ -11,8 +11,8 @@ url: "https://github.com/drewmattie-code/Agent-Governance-Spine"
 license:
   - CC-BY-4.0
   - MIT
-date-released: 2026-05-26
-version: "0.1-draft"
+date-released: 2026-05-28
+version: "1.0"
 abstract: >
   AGS (Agent Governance Spine) is an architectural pattern for the
   governance layer that sits above MCP / PDS / ACS / ESF / CRI — the

@@ -1,6 +1,6 @@
 # Agent Governance Spine — Specification
 
-> **Status:** v0.1-draft · Drew Mattie · 2026-05-26
+> **Status:** v1.0 · Drew Mattie · 2026-05-28
 > **License:** [CC BY 4.0](LICENSE-CC-BY-4.0)
 
 This is the full technical specification for the Agent Governance Spine pattern. The [README](README.md) is the elevator pitch; this document is the build reference.
@@ -348,7 +348,8 @@ Within AGS itself, bad governance decomposes further: policy-coverage gap, ident
 
 This specification follows semantic versioning. Breaking changes to the conceptual model bump the major version; new principles or refinements bump the minor. Editorial fixes bump the patch.
 
-- **v0.1-draft** — initial draft (2026-05-26). Triggered by Microsoft Agent Governance Toolkit release. Awaiting field feedback before v1.0 lock.
+- **v0.1-draft** — initial draft (2026-05-26). Triggered by Microsoft Agent Governance Toolkit release. Internal review.
+- **v1.0** — first public release under CC BY 4.0 + MIT (2026-05-28).
 
 ---
 
