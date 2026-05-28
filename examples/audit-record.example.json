@@ -10,7 +10,7 @@
   "principal": {
     "identity": {
       "type": "spiffe",
-      "id": "spiffe://charlesandroe.com/clawgentics/agent/yetti-v8-eval/instance-7c2f",
+      "id": "spiffe://example.com/clawgentics/agent/yetti-v8-eval/instance-7c2f",
       "attested_via": "spire-agent-v1.10.1",
       "attestation_signature": "MEUCIQDxK...truncated...j8Aw==",
       "tenant_id": "tenant.acme-distributor.production",
@@ -59,8 +59,8 @@
     "rule_priority": 50,
     "rationale": "action.value_usd ($127,500) > threshold ($100,000) — issue_approval requires sign-off",
     "approvers_required": [
-      { "role": "vp_finance", "approver_id_options": ["principal.spiffe://charlesandroe.com/vp-finance/jdoe"] },
-      { "role": "cfo", "approver_id_options": ["principal.spiffe://charlesandroe.com/cfo/rebecca"] }
+      { "role": "vp_finance", "approver_id_options": ["principal.spiffe://example.com/vp-finance/jdoe"] },
+      { "role": "cfo", "approver_id_options": ["principal.spiffe://example.com/cfo/rebecca"] }
     ],
     "approval_timeout_minutes": 60,
     "on_timeout": "escalate",
