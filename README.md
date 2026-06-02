@@ -2,7 +2,7 @@
 
 # Agent Governance Spine
 
-**The protocol-layer substrate where AI agents are governed deterministically — not asked to behave. Policy enforcement, per-agent identity, and tamper-evident audit applied to every agent action BEFORE the model's intent reaches the wire. Production patterns for agent systems that must survive an audit, a regulator, or a post-mortem.**
+**The protocol-layer substrate where AI agents are governed deterministically, not asked to behave. Policy enforcement, per-agent identity, and tamper-evident audit applied to every agent action BEFORE the model's intent reaches the wire. Production patterns for agent systems that must survive an audit, a regulator, or a post-mortem.**
 
 [![License: CC BY 4.0](https://img.shields.io/badge/spec-CC_BY_4.0-blue?style=flat-square)](LICENSE-CC-BY-4.0)
 [![License: MIT](https://img.shields.io/badge/code-MIT-green?style=flat-square)](LICENSE-MIT)
@@ -17,11 +17,11 @@
 
 # What this is
 
-AGS is a pattern for the layer that **governs** AI agents — the protocol-layer substrate where every agent action passes through deterministic policy enforcement, carries verifiable per-agent identity, and lands in a tamper-evident audit log. Whether one agent or one hundred, whether one tool or one thousand: every action goes through the spine before it reaches anything that can change state in the world.
+AGS is a pattern for the layer that **governs** AI agents: the protocol-layer substrate where every agent action passes through deterministic policy enforcement, carries verifiable per-agent identity, and lands in a tamper-evident audit log. Whether one agent or one hundred, whether one tool or one thousand: every action goes through the spine before it reaches anything that can change state in the world.
 
 Most production agent systems today rely on prompt-level safety as their primary control surface. *"Please don't drop the table."* *"Only send emails to verified recipients."* *"Refuse unauthorized operations."* This is a polite request to a stochastic system.
 
-The empirical record is unambiguous. On JailbreakBench (Chao et al., NeurIPS 2024), the standard open robustness benchmark, adaptive attacks reach **near-100% attack success rates** against frontier safety-aligned models. Andriushchenko et al. (ICLR 2025) report 100% ASR on GPT-4, GPT-3.5, Claude 3, Llama-3, Gemma-7B, and a dozen other frontier models using simple prompt-only attacks. Microsoft's own AI Red Team, after red-teaming 100 generative AI products, concludes that *"AI red teaming is a continuous process that should adapt to the rapidly evolving risk landscape"* — model-layer defenses are probabilistic by construction.
+The empirical record is unambiguous. On JailbreakBench (Chao et al., NeurIPS 2024), the standard open robustness benchmark, adaptive attacks reach **near-100% attack success rates** against frontier safety-aligned models. Andriushchenko et al. (ICLR 2025) report 100% ASR on GPT-4, GPT-3.5, Claude 3, Llama-3, Gemma-7B, and a dozen other frontier models using simple prompt-only attacks. Microsoft's own AI Red Team, after red-teaming 100 generative AI products, concludes that *"AI red teaming is a continuous process that should adapt to the rapidly evolving risk landscape"*. Model-layer defenses are probabilistic by construction.
 
 AGS does not try to win that fight inside the prompt. Every tool call, message send, and delegation is intercepted in deterministic application code **before** the model's intent reaches the wire. Actions the spine denies are not "unlikely." They are **structurally impossible**.
 
@@ -36,7 +36,7 @@ Four failure modes recur across production agent deployments. AGS addresses them
 3. **Audit gap.** No tamper-evident record of what policy was active, what the agent requested, and why it was allowed or denied. Auditors cannot certify. SOC 2 / ISO 27001 / regulators cannot sign off.
 4. **Policy drift.** Policy lives in prose, in tribal knowledge, or in stale config files. Not in versioned, lintable, testable code. The actual behavior of the system diverges from what was approved, and no one notices until an incident.
 
-AGS is the implementation pattern that addresses all four — by enforcing policy as code, anchoring identity per agent, recording every decision tamper-evidently, and treating governance as protocol-layer infrastructure rather than prompt-layer hope.
+AGS is the implementation pattern that addresses all four, by enforcing policy as code, anchoring identity per agent, recording every decision tamper-evidently, and treating governance as protocol-layer infrastructure rather than prompt-layer hope.
 
 # Architecture
 
@@ -78,7 +78,7 @@ AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalo
 └────────────────────┬─────────────────────────────────────┘
                      ↓
 ┌──────────────────────────────────────────────────────────┐
-│ ACS — Adversarial Coordination Spine                      │  ← multi-agent
+│ ACS - Adversarial Coordination Spine                      │  ← multi-agent
 └──────┬───────────────────────────────────┬───────────────┘
        ↓                                   ↓
 ┌──────────────┐  ┌─────────────────┐  ┌──────────────┐
@@ -88,7 +88,7 @@ AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalo
 └──────┬───────┘  └──────┬──────────┘  └──────┬───────┘
        ↓                 ↓                    ↓
 ┌──────────────────────────────────────────────────────────┐
-│ AGS — Agent Governance Spine                              │  ← THIS spec
+│ AGS - Agent Governance Spine                              │  ← THIS spec
 │ deterministic policy · identity · tamper-evident audit   │
 └──────────────────────────┬───────────────────────────────┘
                            ↓
@@ -115,7 +115,7 @@ PDS, ACS, ESF, CRI describe *how data and coordination flow through* an agent sy
 | 06 | **Kill switch + SLO monitoring + chaos testing** | Every deployed agent is monitored against an SLO and reachable by a human-operated kill switch. Chaos testing of the governance layer itself, not just the agents. |
 | 07 | **Tool poisoning detection + drift monitoring** | The tool supply chain is itself a threat surface. Hidden instructions, typosquatting, drift between authored manifest and runtime behavior all detected at the spine. |
 | 08 | **Shadow agent discovery** | Unregistered agents are a real production risk. The spine includes active discovery for processes, configs, and repos. |
-| 09 | **Trust scoring for plugin marketplaces** | Composite agent-trust score at the marketplace level. Different from CRI's customer-decision-level scoring — this is agent-level reputation. |
+| 09 | **Trust scoring for plugin marketplaces** | Composite agent-trust score at the marketplace level. Different from CRI's customer-decision-level scoring. This is agent-level reputation. |
 | 10 | **Governance-aware training** | If you control post-training, the model is trained with violation penalties (RL-style). Agents that learn to respect the policy substrate are cheaper to govern at runtime. |
 
 Full discussion of each principle, with problems, patterns, and implementation notes, lives in [SPEC.md](SPEC.md).
@@ -135,7 +135,7 @@ The four-spec catalog (PDS / ACS / ESF / CRI) produces the **five-way failure at
 
 This six-attribution dictionary is the meta-architectural contribution of the full SaaSquach AI Labs catalog. Build, measure, and own each surface separately.
 
-# Industry context — convergence on the same pattern
+# Industry context: convergence on the same pattern
 
 AGS is not a novel invention. It is a formalization of a pattern that policy-engine vendors, identity-protocol authors, and major-vendor governance platforms have independently converged on. The pattern crystallized as agent deployments crossed the threshold where adversarial robustness became a customer-blocking concern. AGS synthesizes that convergence into a single referenceable specification.
 
@@ -145,7 +145,7 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 **AWS Cedar Policy Language.** The canonical language for verified analyzable authorization: *"Cedar is a language for writing authorization policies and making authorization decisions based on those policies."* Peer-reviewed (Cedar paper, arXiv:2403.04651). [Source](https://docs.cedarpolicy.com/)
 
-**Permit.io.** Commercial policy-as-code platform with explicit agent-governance framing: *"Permit.io unifies policy, delegation, approvals, trust, and audit into one action-time policy fabric — for humans, services, and AI agents."* [Source](https://www.permit.io/)
+**Permit.io.** Commercial policy-as-code platform with explicit agent-governance framing: *"Permit.io unifies policy, delegation, approvals, trust, and audit into one action-time policy fabric, for humans, services, and AI agents."* [Source](https://www.permit.io/)
 
 **SPIFFE (CNCF).** Workload identity standard: *"Systems that adopt SPIFFE can easily and reliably mutually authenticate wherever they are running."* [Source](https://spiffe.io/docs/latest/spiffe-about/overview/)
 
@@ -153,7 +153,7 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 ## Productized governance kernels (proof that the pattern is shippable)
 
-**Microsoft — Agent Governance Toolkit.** Microsoft's MIT-licensed multi-language governance kernel for autonomous AI agents. Covers OWASP Agentic Top 10 10/10. Productizes deterministic policy enforcement, SPIFFE/DID/mTLS identity, tamper-evident audit: *"Actions the AGT kernel denies are not 'unlikely.' They are structurally impossible."* Microsoft anchors the empirical case in JailbreakBench and concludes that prompt-layer defenses leak double-digit residual ASR. [Source](https://github.com/microsoft/agent-governance-toolkit)
+**Microsoft, Agent Governance Toolkit.** Microsoft's MIT-licensed multi-language governance kernel for autonomous AI agents. Covers OWASP Agentic Top 10 10/10. Productizes deterministic policy enforcement, SPIFFE/DID/mTLS identity, tamper-evident audit: *"Actions the AGT kernel denies are not 'unlikely.' They are structurally impossible."* Microsoft anchors the empirical case in JailbreakBench and concludes that prompt-layer defenses leak double-digit residual ASR. [Source](https://github.com/microsoft/agent-governance-toolkit)
 
 ## Empirical case for deterministic enforcement (why prompt-level is insufficient)
 
@@ -165,7 +165,7 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 ## OWASP risk taxonomy
 
-**OWASP LLM06:2025 — Excessive Agency.** The canonical OWASP risk taxonomy entry for agent action-space governance: *"An LLM-based system is often granted a degree of agency by its developer — the ability to call functions or interface with other systems."* [Source](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) · Companion: [OWASP Agentic AI Threats and Mitigations](https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/) (Feb 2025).
+**OWASP LLM06:2025, Excessive Agency.** The canonical OWASP risk taxonomy entry for agent action-space governance: *"An LLM-based system is often granted a degree of agency by its developer, the ability to call functions or interface with other systems."* [Source](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) · Companion: [OWASP Agentic AI Threats and Mitigations](https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/) (Feb 2025).
 
 ## What AGS contributes
 
@@ -175,8 +175,8 @@ The sources above document INDIVIDUAL implementations and isolated primitives. A
 2. **Target SLAs** for production governance readiness
 3. An **8-step build sequence** from skeleton to first reference deployment
 4. **Anti-patterns** to avoid
-5. A **portable, citable specification** under CC BY 4.0 — adopt, adapt, build commercial products on top, with attribution
-6. **Explicit composition with PDS, ACS, ESF, and CRI** — the six-way failure attribution dictionary the five-spec catalog enables
+5. A **portable, citable specification** under CC BY 4.0: adopt, adapt, build commercial products on top, with attribution
+6. **Explicit composition with PDS, ACS, ESF, and CRI**: the six-way failure attribution dictionary the five-spec catalog enables
 
 If your team is independently converging on this pattern (as Microsoft, OPA, Cedar, SPIFFE, Permit.io and others already have), AGS gives you a vocabulary, a checklist, and a published artifact you can hand to your regulators / auditors / customers.
 
@@ -184,7 +184,7 @@ If your team is independently converging on this pattern (as Microsoft, OPA, Ced
 
 | Metric | Target | Why it matters |
 |---|---|---|
-| Actions executed without policy evaluation | 0 | Non-negotiable — every action goes through the spine |
+| Actions executed without policy evaluation | 0 | Non-negotiable: every action goes through the spine |
 | Actions executed without verifiable agent identity | 0 | "An agent did it" is never acceptable |
 | Audit log completeness (every decision recorded) | 100% | SOC 2 / ISO 27001 prerequisite |
 | Audit log tamper-evidence | Cryptographic anchoring | Hash chain / Merkle proof / equivalent |
@@ -197,28 +197,28 @@ If your team is independently converging on this pattern (as Microsoft, OPA, Ced
 
 # Reference build sequence
 
-AGS is built in sequence — skeleton through to first production reference deployment. Each step depends on the previous one. Pace varies by team and tooling; the sequence does not.
+AGS is built in sequence: skeleton through to first production reference deployment. Each step depends on the previous one. Pace varies by team and tooling; the sequence does not.
 
 | Step | Deliverable |
 |---|---|
-| 1 | Policy engine + first deterministic deny — one tool wrapped, one policy rule, one allow / deny path |
-| 2 | Audit log — append-only, structured, written on every decision (allow + deny) |
-| 3 | Agent identity — every action carries a verifiable agent-ID; cross-tenant identity isolation enforced |
-| 4 | Tamper-evidence — commitment anchoring (hash chain / Merkle / signed batches) on the audit log |
-| 5 | Privilege rings — sandboxed execution tiered by agent trust level |
-| 6 | Kill switch + SLO monitoring — humans can stop a runaway agent in seconds; SLO breaches trigger alerts |
-| 7 | Tool poisoning detection + shadow agent discovery — supply-chain governance |
+| 1 | Policy engine + first deterministic deny: one tool wrapped, one policy rule, one allow / deny path |
+| 2 | Audit log: append-only, structured, written on every decision (allow + deny) |
+| 3 | Agent identity: every action carries a verifiable agent-ID; cross-tenant identity isolation enforced |
+| 4 | Tamper-evidence: commitment anchoring (hash chain / Merkle / signed batches) on the audit log |
+| 5 | Privilege rings: sandboxed execution tiered by agent trust level |
+| 6 | Kill switch + SLO monitoring: humans can stop a runaway agent in seconds; SLO breaches trigger alerts |
+| 7 | Tool poisoning detection + shadow agent discovery: supply-chain governance |
 | 8 | Spec / one-pager / case study |
 
 See [SPEC.md](SPEC.md#5-build-sequence) for details.
 
 # Who this is for
 
-- **CTOs / CISOs / CIOs** deploying autonomous agents to production — when prompt-level safety stops being defensible
+- **CTOs / CISOs / CIOs** deploying autonomous agents to production, when prompt-level safety stops being defensible
 - **GRC / compliance / audit teams** that need to certify agent systems against SOC 2 / ISO 27001 / regulator standards
-- **Enterprise platform teams** evaluating AGT, OPA, Cedar, Permit.io, SPIFFE — this gives you the vocabulary to ask the right questions
+- **Enterprise platform teams** evaluating AGT, OPA, Cedar, Permit.io, SPIFFE. This gives you the vocabulary to ask the right questions
 - **AI engineers** building agent systems that must survive a real adversarial environment
-- **Buyers** of AI vendors — the questions to ask vendors who claim governance ("Do you enforce deterministically? Where is agent identity attested? Is the audit log tamper-evident? Where does the policy live?")
+- **Buyers** of AI vendors: the questions to ask vendors who claim governance ("Do you enforce deterministically? Where is agent identity attested? Is the audit log tamper-evident? Where does the policy live?")
 
 # What this is not
 
@@ -243,9 +243,9 @@ After install, the skill auto-activates whenever you ask Claude about agent gove
 
 The [`examples/`](examples/) directory has concrete artifacts:
 
-- [`policy-yaml.example.md`](examples/policy-yaml.example.md) — what a production-grade policy file looks like (allow/deny/require-approval rules with conditions)
-- [`audit-record.example.json`](examples/audit-record.example.json) — what an AGS audit-log entry looks like, with commitment anchoring
-- [`privilege-rings.md`](examples/privilege-rings.md) — four-ring sandboxing model worked through for a typical agent fleet
+- [`policy-yaml.example.md`](examples/policy-yaml.example.md): what a production-grade policy file looks like (allow/deny/require-approval rules with conditions)
+- [`audit-record.example.json`](examples/audit-record.example.json): what an AGS audit-log entry looks like, with commitment anchoring
+- [`privilege-rings.md`](examples/privilege-rings.md): four-ring sandboxing model worked through for a typical agent fleet
 
 # Citing this work
 
@@ -259,18 +259,18 @@ Issues, examples, implementation reports, and policy patterns welcome. See [CONT
 
 # License
 
-- **Spec, documentation, diagrams** — [Creative Commons Attribution 4.0 (CC BY 4.0)](LICENSE-CC-BY-4.0). Use it, adapt it, build commercial products on top — credit the source.
-- **Code samples and examples** — [MIT](LICENSE-MIT).
+- **Spec, documentation, diagrams**: [Creative Commons Attribution 4.0 (CC BY 4.0)](LICENSE-CC-BY-4.0). Use it, adapt it, build commercial products on top. Credit the source.
+- **Code samples and examples**: [MIT](LICENSE-MIT).
 
 # Catalog
 
 AGS is the fifth specification in the SaaSquach AI Labs architectural catalog:
 
-- **[PDS — Progressive Discovery Spine](https://github.com/drewmattie-code/Progressive-Discovery-Spine)** — single-agent tool discipline
-- **[ACS — Adversarial Coordination Spine](https://github.com/drewmattie-code/Adversarial-Coordination-Spine)** — multi-agent coordination
-- **[ESF — External Signal Fabric](https://github.com/drewmattie-code/External-Signal-Fabric)** — external-world signal substrate
-- **[CRI — Composite Risk Index](https://github.com/drewmattie-code/Composite-Risk-Index)** — composite scoring *(private)*
-- **AGS — Agent Governance Spine** *(this spec)* — protocol-layer governance
+- **[PDS: Progressive Discovery Spine](https://github.com/drewmattie-code/Progressive-Discovery-Spine)**, single-agent tool discipline
+- **[ACS: Adversarial Coordination Spine](https://github.com/drewmattie-code/Adversarial-Coordination-Spine)**, multi-agent coordination
+- **[ESF: External Signal Fabric](https://github.com/drewmattie-code/External-Signal-Fabric)**, external-world signal substrate
+- **[CRI: Composite Risk Index](https://github.com/drewmattie-code/Composite-Risk-Index)**, composite scoring *(private)*
+- **AGS: Agent Governance Spine** *(this spec)*, protocol-layer governance
 
 Together they form the six-way failure attribution dictionary (bad customer data / bad world data / bad reasoning / bad evaluation / bad scoring / bad governance) documented above. Each spec plants a flag at a different layer of the agent-architecture stack.
 

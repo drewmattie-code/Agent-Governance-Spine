@@ -57,7 +57,7 @@
     "outcome": "require_approval",
     "matched_rule": "require-approval-large-value-approvals",
     "rule_priority": 50,
-    "rationale": "action.value_usd ($127,500) > threshold ($100,000) — issue_approval requires sign-off",
+    "rationale": "action.value_usd ($127,500) > threshold ($100,000): issue_approval requires sign-off",
     "approvers_required": [
       { "role": "vp_finance", "approver_id_options": ["principal.spiffe://example.com/vp-finance/jdoe"] },
       { "role": "cfo", "approver_id_options": ["principal.spiffe://example.com/cfo/rebecca"] }
@@ -96,9 +96,9 @@
     "2_identity_per_agent": "principal.identity.id = SPIFFE per-agent ID; tenant_id is verified on the identity attestation",
     "3_tamper_evident_audit": "tamper_evidence.this_record_hash chains to previous_record_hash; Merkle batch will be anchored to external TSA on close",
     "4_policy_as_code": "policy.policy_version + policy_artifact_hash pin the exact rule set; reproducible audit five years later",
-    "5_privilege_rings": "principal.ring = 2 — captured in record; some actions only allowed for Ring 0",
+    "5_privilege_rings": "principal.ring = 2, captured in record; some actions only allowed for Ring 0",
     "6_kill_switch_slo": "(not visible in single record; SLO monitoring queries aggregate this audit stream)",
-    "7_tool_poisoning_detection": "action.tool_name = 'approval_engine.issue' — present in signed tool manifest; verified at evaluation time",
+    "7_tool_poisoning_detection": "action.tool_name = 'approval_engine.issue', present in signed tool manifest; verified at evaluation time",
     "8_shadow_agent_discovery": "principal.identity.id is registered; (shadow-discovery would flag unregistered identities at scan time)",
     "9_trust_scoring": "principal.trust_score = 0.94 with full input lineage; consumed by policy rules that gate on trust",
     "10_governance_aware_training": "(not visible in single record; training-time provenance lives on the model side)"

@@ -61,7 +61,7 @@ rules:
 
   # Deny: destructive operations always denied (ClawGentics LOA never modifies historical approvals)
   - name: deny-destructive-history-operations
-    description: "ClawGentics LOA is append-only. No agent — at any ring — can delete or modify historical approval records."
+    description: "ClawGentics LOA is append-only. No agent - at any ring - can delete or modify historical approval records."
     priority: 1
     when:
       action.type: in: [delete_approval, modify_approval_history, truncate_audit, drop_audit_table]
@@ -73,7 +73,7 @@ rules:
 
   # Deny: cross-tenant identity attempts (defense in depth)
   - name: deny-cross-tenant-access
-    description: "Identity layer already enforces tenant scoping. This rule is defense-in-depth — explicit deny on any action where principal tenant != target tenant."
+    description: "Identity layer already enforces tenant scoping. This rule is defense-in-depth - explicit deny on any action where principal tenant != target tenant."
     priority: 1
     when:
       principal.identity.tenant_id: not_equals: target.tenant_id
@@ -128,37 +128,37 @@ rules:
 
 Every rule in a production AGS policy file MUST declare:
 
-1. **`name`** — human-readable; goes into audit-log entries
-2. **`priority`** — lower number = higher precedence; `defaults` is lowest
-3. **`when`** — match conditions (action attributes, principal attributes, target attributes)
-4. **`decision`** — `allow` | `deny` | `require_approval`
-5. **`audit`** — retention period and any severity / alert routing
+1. **`name`**: human-readable; goes into audit-log entries
+2. **`priority`**: lower number = higher precedence; `defaults` is lowest
+3. **`when`**: match conditions (action attributes, principal attributes, target attributes)
+4. **`decision`**: `allow` | `deny` | `require_approval`
+5. **`audit`**: retention period and any severity / alert routing
 
 Highly recommended:
-- **`description`** — why this rule exists; reviewable
-- **`approvers`** for `require_approval` rules — who can sign off
-- **`approval_timeout_minutes`** + **`on_timeout`** — what happens if no approver acts
+- **`description`**: why this rule exists; reviewable
+- **`approvers`** for `require_approval` rules: who can sign off
+- **`approval_timeout_minutes`** + **`on_timeout`**: what happens if no approver acts
 - **`severity`** + **`alert`** for high-impact deny rules
 
 ## How the policy is deployed
 
 The policy file lives in git, in the `policies/` directory of the deploying project. CI gates:
 
-1. **Lint** — `agt lint-policy policies/` (or the OPA/Cedar equivalent) must pass.
-2. **Test** — every rule has at least one allow + one deny test case. Test fixture inputs cover the rule's match conditions.
-3. **PR review** — every change touching `policies/` requires reviewer approval from a designated security owner.
-4. **Signed commit** — production deployment loads only signed commits (GPG / Sigstore).
-5. **Version pinning** — production loads policy version `1.3.0` (or whatever's tagged); not "latest." Changing what's deployed requires a deploy event, which itself is audited.
+1. **Lint**: `agt lint-policy policies/` (or the OPA/Cedar equivalent) must pass.
+2. **Test**: every rule has at least one allow + one deny test case. Test fixture inputs cover the rule's match conditions.
+3. **PR review**: every change touching `policies/` requires reviewer approval from a designated security owner.
+4. **Signed commit**: production deployment loads only signed commits (GPG / Sigstore).
+5. **Version pinning**: production loads policy version `1.3.0` (or whatever's tagged); not "latest." Changing what's deployed requires a deploy event, which itself is audited.
 
 ## When the policy can be changed in an emergency
 
 Emergency policy changes are themselves changes-as-code. No production console hotfix. The emergency change process:
 
 1. Author files a PR with the emergency change + an incident ticket reference.
-2. Two approvers (instead of one) sign off — both must be in the `incident_response` group.
+2. Two approvers (instead of one) sign off. Both must be in the `incident_response` group.
 3. CI runs the full lint + test suite (faster fast-path acceptable; tests must still pass).
 4. Deploy.
-5. The emergency change is reviewed at the next routine security review (e.g., weekly) — and either confirmed as a permanent change or rolled back.
+5. The emergency change is reviewed at the next routine security review (e.g., weekly), and either confirmed as a permanent change or rolled back.
 
 ## Audit-log expectation
 
@@ -171,7 +171,7 @@ Critical: the audit log records the **policy version** active at decision time. 
 For brevity, this example omits:
 
 - Custom decision context attributes (e.g., business-hours window, customer-tier-specific rules)
-- Privilege-ring-specific carve-outs (Ring 0 agents have different rules than Ring 3 — see `examples/privilege-rings.md`)
+- Privilege-ring-specific carve-outs (Ring 0 agents have different rules than Ring 3; see `examples/privilege-rings.md`)
 - Tool-poisoning-detection trigger rules (covered by AGS principle #7)
 - Shadow-agent-discovery rules (covered by AGS principle #8)
 

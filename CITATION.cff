@@ -15,7 +15,7 @@ date-released: 2026-05-28
 version: "1.0"
 abstract: >
   AGS (Agent Governance Spine) is an architectural pattern for the
-  governance layer that sits above MCP / PDS / ACS / ESF / CRI — the
+  governance layer that sits above MCP / PDS / ACS / ESF / CRI: the
   protocol-layer substrate where deterministic policy enforcement,
   per-agent identity, and tamper-evident audit are applied to every
   agent action BEFORE the model's intent reaches the wire. The pattern

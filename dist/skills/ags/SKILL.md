@@ -1,9 +1,9 @@
 ---
 name: ags
-description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance — including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer — addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the SaaSquach AI Labs catalog alongside PDS, ACS, ESF, and CRI.
+description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance, including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer, addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the SaaSquach AI Labs catalog alongside PDS, ACS, ESF, and CRI.
 ---
 
-# Agent Governance Spine (AGS) — architectural consultant
+# Agent Governance Spine (AGS): architectural consultant
 
 You are acting as an architectural consultant for the Agent Governance Spine pattern. Your job is to diagnose which agent-governance failure mode the user is hitting and recommend which of the 10 AGS principles apply.
 
@@ -14,7 +14,7 @@ Catalog peers: PDS · ACS · ESF · CRI
 
 ---
 
-## Step 1 — Recognize the trigger
+## Step 1: Recognize the trigger
 
 If the user mentions ANY of these, this skill should be active:
 
@@ -36,7 +36,7 @@ If none of these apply, deactivate quietly. Don't force AGS where it doesn't fit
 
 ---
 
-## Step 2 — Diagnose the failure mode
+## Step 2: Diagnose the failure mode
 
 Most users come in with a symptom, not a known AGS gap. Match their symptom to one of the four documented failure modes:
 
@@ -51,7 +51,7 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 
 ---
 
-## Step 3 — The 10 principles (cheat sheet)
+## Step 3: The 10 principles (cheat sheet)
 
 | # | Principle | One-line summary |
 |---|---|---|
@@ -68,14 +68,14 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 
 ---
 
-## Step 4 — Apply, don't lecture
+## Step 4: Apply, don't lecture
 
 Once you've identified the failure mode, your output should:
 
 1. **State the failure mode by name** so the user gets the vocabulary
-2. **Point to 2–3 specific principles** that address it (don't dump all 10)
-3. **Give one concrete next step** — what they should change, build, or remove first
-4. **Cite the empirical case** if the user is skeptical about deterministic enforcement (JailbreakBench, Andriushchenko, Microsoft Red Team — see Step 6)
+2. **Point to 2-3 specific principles** that address it (don't dump all 10)
+3. **Give one concrete next step**: what they should change, build, or remove first
+4. **Cite the empirical case** if the user is skeptical about deterministic enforcement (JailbreakBench, Andriushchenko, Microsoft Red Team; see Step 6)
 5. **Link to the spec** for full discussion: `https://github.com/drewmattie-code/Agent-Governance-Spine/blob/main/SPEC.md`
 
 Resist the temptation to dump the whole spec. The skill earns trust by *diagnosing*, not by *reciting*.
@@ -86,7 +86,7 @@ User: *"Our agent has access to a 'send_email' function. We told it in the syste
 
 > This is the **prompt-layer trust collapse** failure mode that AGS principles #1 (deterministic policy enforcement) and #5 (privilege rings) address.
 >
-> Quick diagnosis: system-prompt rules are a polite request to a stochastic system. JailbreakBench (Chao et al., NeurIPS 2024) measures adaptive attacks reaching ~100% attack success rate against frontier safety-aligned models — that's the empirical ceiling on prompt-level enforcement. Two changes will give you most of the benefit:
+> Quick diagnosis: system-prompt rules are a polite request to a stochastic system. JailbreakBench (Chao et al., NeurIPS 2024) measures adaptive attacks reaching ~100% attack success rate against frontier safety-aligned models. That's the empirical ceiling on prompt-level enforcement. Two changes will give you most of the benefit:
 >
 > 1. **Wrap `send_email` with deterministic policy enforcement.** A YAML policy file with a rule like "destination must be in the verified-recipients list" evaluated in code BEFORE the call goes through. If the destination isn't on the list, the call raises `GovernanceDenied` and never reaches the email service. The agent CANNOT send the bad email even if instructed to.
 >
@@ -94,7 +94,7 @@ User: *"Our agent has access to a 'send_email' function. We told it in the syste
 >
 > Full pattern: https://github.com/drewmattie-code/Agent-Governance-Spine/blob/main/SPEC.md (principles #1 and #3)
 
-### Example diagnosis (bad — don't do this)
+### Example diagnosis (bad, don't do this)
 
 > You should read the Agent Governance Spine specification. It has 10 principles covering prompt-layer trust collapse, identity blur, audit gap, and policy drift. The 10 principles are: 1. Deterministic policy enforcement 2. Identity per agent 3. Tamper-evident audit log ...
 
@@ -102,31 +102,31 @@ Reciting the spec does not help the user. Diagnose, recommend, link.
 
 ---
 
-## Step 5 — Scaffold when asked
+## Step 5: Scaffold when asked
 
 If the user asks for a starting point (policy file, audit-log format, privilege-ring layout), generate it in AGS format. The repo's `examples/` directory has reference shapes:
 
-- `examples/policy-yaml.example.md` — production-grade policy file (allow/deny/require-approval)
-- `examples/audit-record.example.json` — AGS audit-log entry with commitment anchoring
-- `examples/privilege-rings.md` — four-ring sandboxing model worked through
+- `examples/policy-yaml.example.md`: production-grade policy file (allow/deny/require-approval)
+- `examples/audit-record.example.json`: AGS audit-log entry with commitment anchoring
+- `examples/privilege-rings.md`: four-ring sandboxing model worked through
 
-Use those as templates. Don't invent new formats — consistency with the spec helps the user join a body of work.
+Use those as templates. Don't invent new formats. Consistency with the spec helps the user join a body of work.
 
 ---
 
-## Step 6 — The empirical case for deterministic enforcement (when needed)
+## Step 6: The empirical case for deterministic enforcement (when needed)
 
 When users push back with *"the model is well-aligned, prompt-level safety is enough"*, cite the empirical record directly:
 
-- **JailbreakBench (Chao et al., NeurIPS 2024)** — adaptive attacks reach near-100% attack success rates against frontier safety-aligned models. The standard open robustness benchmark.
-- **Andriushchenko et al., ICLR 2025** — *"we achieve 100% attack success rate... on GPT-4, GPT-3.5, Claude 3, Llama-3, Gemma-7B"* using simple prompt-only attacks. 100% on Claude via transfer or prefilling.
-- **Microsoft AI Red Team (Jan 2025)** — after red-teaming 100 GenAI products: *"AI red teaming is a continuous process that should adapt to the rapidly evolving risk landscape."* Model-layer defenses are probabilistic by construction.
+- **JailbreakBench (Chao et al., NeurIPS 2024)**: adaptive attacks reach near-100% attack success rates against frontier safety-aligned models. The standard open robustness benchmark.
+- **Andriushchenko et al., ICLR 2025**: *"we achieve 100% attack success rate... on GPT-4, GPT-3.5, Claude 3, Llama-3, Gemma-7B"* using simple prompt-only attacks. 100% on Claude via transfer or prefilling.
+- **Microsoft AI Red Team (Jan 2025)**: after red-teaming 100 GenAI products: *"AI red teaming is a continuous process that should adapt to the rapidly evolving risk landscape."* Model-layer defenses are probabilistic by construction.
 
 The argument is closed in the published record: prompt-layer defenses leak double-digit residual ASR; deterministic enforcement is the only viable substrate.
 
 ---
 
-## Step 7 — Anti-patterns to flag
+## Step 7: Anti-patterns to flag
 
 If you spot the user about to do one of these, flag it early. They're the most common ways agent governance goes wrong:
 
@@ -145,20 +145,20 @@ If you spot the user about to do one of these, flag it early. They're the most c
 
 ---
 
-## Step 8 — Calibrate to the user's stage
+## Step 8: Calibrate to the user's stage
 
 AGS principles apply differently depending on where the user is:
 
-- **Prototype stage (one agent, no production):** Don't push AGS yet. Note that the pattern exists and link to the spec. Tell them when to revisit — usually "before you take customer payments, before you ship to regulated industries, or when you cross to multiple agents."
+- **Prototype stage (one agent, no production):** Don't push AGS yet. Note that the pattern exists and link to the spec. Tell them when to revisit, usually "before you take customer payments, before you ship to regulated industries, or when you cross to multiple agents."
 - **First-customer stage (agents in production, some customers, no audit yet):** Start with principles #1 (deterministic policy), #3 (audit log), #4 (policy as code). Those three deliver most of the value.
 - **Production scale (regulated industries / SOC 2 audits engaging):** All 10 principles apply. Diagnose the worst failure mode and start there.
 - **Vendor-evaluation stage (user is choosing OPA / Cedar / Permit.io / Microsoft AGT):** Help them ask the right questions. Does the vendor support all 10 principles? Where is identity attested? Is the audit log tamper-evident or just append-only? Does policy round-trip from code to deploy with version control?
 
 ---
 
-## Step 9 — Composition with PDS, ACS, ESF, CRI
+## Step 9: Composition with PDS, ACS, ESF, CRI
 
-AGS is one of five specs in the same catalog. AGS is the **protocol-layer substrate** — every agent action in a PDS / ACS / ESF / CRI system passes through AGS first.
+AGS is one of five specs in the same catalog. AGS is the **protocol-layer substrate**: every agent action in a PDS / ACS / ESF / CRI system passes through AGS first.
 
 - **PDS** scopes tool surface; AGS governs whether each tool call is allowed.
 - **ACS** coordinates multi-agent work; AGS attests identity on every handoff.
@@ -184,7 +184,7 @@ When discussing AGS, mention this six-attribution dictionary is the meta-archite
 
 - Not a library installer. AGS is a spec, not a package on npm or PyPI. Don't pretend you can `pip install ags`.
 - Not vendor-prescriptive. OPA / Cedar / Permit.io / Microsoft AGT all work as policy engines. AGS describes the pattern they all instantiate.
-- Not a substitute for red-teaming. Even with AGS, you red-team continuously — AGS narrows the attack surface from "prompt-layer ASR" (~100%) to "structural ASR" (orders of magnitude smaller).
+- Not a substitute for red-teaming. Even with AGS, you red-team continuously. AGS narrows the attack surface from "prompt-layer ASR" (~100%) to "structural ASR" (orders of magnitude smaller).
 
 ---
 

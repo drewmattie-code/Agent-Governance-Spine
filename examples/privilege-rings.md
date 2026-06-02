@@ -11,7 +11,7 @@ A worked example of AGS principle #5 (privilege rings, not flat permissions) app
 | **Ring 2** | Internal analyst / researcher | Container + network egress only to allowed-list domains | Read-only on most production data; can write to scratch / analysis stores; cannot mutate any operational state |
 | **Ring 3** | Sandboxed researcher / agent-under-test | Firecracker VM or Kubernetes Job; no network egress | Reads only synthetic / anonymized data; no persistent writes; useful for evaluating new agents pre-promotion |
 
-## Sample fleet — assignment of agents to rings
+## Sample fleet: assignment of agents to rings
 
 | Agent | Ring | Reasoning |
 |---|---|---|
@@ -61,11 +61,11 @@ Any agent can be demoted instantly without ceremony when:
 - A security incident touches the agent's domain
 - Drift detection flags significant divergence between manifest and runtime behavior
 
-Demotion is a policy change — same workflow as promotion but executable in seconds by the on-call security engineer (the emergency change process described in `policy-yaml.example.md`).
+Demotion is a policy change, same workflow as promotion but executable in seconds by the on-call security engineer (the emergency change process described in `policy-yaml.example.md`).
 
 ## Cross-ring escalation (a single action)
 
-Sometimes a Ring 1 agent legitimately needs to perform a Ring 0 action — e.g., the `clawgentics-loa-issue-approval-agent` needs to send an external notification email when an approval issues. The pattern:
+Sometimes a Ring 1 agent legitimately needs to perform a Ring 0 action, e.g., the `clawgentics-loa-issue-approval-agent` needs to send an external notification email when an approval issues. The pattern:
 
 1. Agent attempts the action
 2. AGS policy evaluates: action `send_external_email` is Ring 0 only
@@ -78,7 +78,7 @@ The agent itself is NOT promoted; only this specific action is elevated. The nex
 
 ## How rings show up in the audit log
 
-See `examples/audit-record.example.json` — the `principal.ring` field. Every audit record carries the ring the agent was in at decision time, so post-hoc analysis can answer:
+See `examples/audit-record.example.json`: the `principal.ring` field. Every audit record carries the ring the agent was in at decision time, so post-hoc analysis can answer:
 
 - "Did any Ring 2 agent attempt a Ring 0 action this quarter?" (should be rare; investigate cluster of attempts)
 - "Did agent X stay in Ring 1 the whole quarter, or did it elevate-and-de-elevate?" (frequent elevation is a flag)
