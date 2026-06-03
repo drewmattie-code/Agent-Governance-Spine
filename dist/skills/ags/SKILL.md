@@ -169,7 +169,7 @@ AGS is one of nine specs in the same catalog. AGS is the **protocol-layer substr
 - **CRI** scores decisions; AGS principle #9 (plugin trust scoring) is a CRI-shaped fusion at the agent / tool layer.
 - **DCS** holds durable state and memory across sessions and time; the same per-agent identity AGS uses to authorize actions scopes DCS memory, and AGS's tamper-evident audit covers durable-memory writes.
 - **GDS** *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements.
-- **ARS** *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against.
+- **ARS** *(private)*: the system of record layer for every agentic asset that discovery reads from and governance enforces against.
 - **SRS** *(private)*: the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS).
 
 **The ten-way attribution dictionary:**

@@ -108,7 +108,7 @@ AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalo
 
 PDS, ACS, ESF, CRI describe *how data and coordination flow through* an agent system; DCS describes *what persists across sessions and time*. AGS describes *what is allowed and recorded*. Every action that any of those layers initiate passes through the AGS spine before it can change anything in the world.
 
-The catalog now spans nine specs. Three private/forthcoming siblings round it out: **GDS (Grounded Data Spine)**, a canonical semantic model (text-to-metric) plus data-level entitlements; **ARS (Agent Registry Spine)**, the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against; and **SRS (Sovereign Runtime Spine)**, the execution substrate, the sovereign first-party agent runtime that first-party agents run ON (outside agents and tools plug INTO the spine; first-party agents run on SRS). See the [Catalog](#catalog) section for the full nine-spec listing.
+The catalog now spans nine specs. Three private/forthcoming siblings round it out: **GDS (Grounded Data Spine)**, a canonical semantic model (text-to-metric) plus data-level entitlements; **ARS (Agent Registry Spine)**, the system of record layer for every agentic asset that discovery reads from and governance enforces against; and **SRS (Sovereign Runtime Spine)**, the execution substrate, the sovereign first-party agent runtime that first-party agents run ON (outside agents and tools plug INTO the spine; first-party agents run on SRS). See the [Catalog](#catalog) section for the full nine-spec listing.
 
 AGS composes directly with DCS, the durable-state sibling. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions. Bad governance is an AGS failure; bad continuity is a DCS failure.
 
@@ -331,7 +331,7 @@ AGS is the fifth specification in the SaaSquach AI Labs architectural catalog, w
 - **AGS: Agent Governance Spine** *(this spec)*, deterministic governance, identity, and audit
 - **[DCS: Durable Context Spine](https://github.com/drewmattie-code/Durable-Context-Spine)**, durable state and memory across sessions and time
 - **GDS: Grounded Data Spine** *(private)*, a canonical semantic model (text-to-metric) plus data-level entitlements
-- **ARS: Agent Registry Spine** *(private)*, the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against
+- **ARS: Agent Registry Spine** *(private)*, the system of record layer for every agentic asset that discovery reads from and governance enforces against
 - **SRS: Sovereign Runtime Spine** *(private)*, the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS)
 
 Together they form the ten-way failure attribution dictionary (bad customer/tool data / bad world data / bad reasoning / bad evaluation / bad scoring / bad governance / bad continuity / bad grounding / bad or missing registry / bad or unbounded execution) documented above. Each spec plants a flag at a different layer of the agent-architecture stack.

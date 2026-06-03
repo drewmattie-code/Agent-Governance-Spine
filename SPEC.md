@@ -372,7 +372,7 @@ AGS is also compatible with the companion specifications in the catalog:
 - **CRI (Composite Risk Index)**: composite risk scoring (private); AGS principle #9 (plugin trust scoring) is a CRI-shaped fusion at the agent / tool layer.
 - **[DCS (Durable Context Spine)](https://github.com/drewmattie-code/Durable-Context-Spine)**: durable state and memory across sessions and time. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions.
 - **GDS (Grounded Data Spine)** *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements.
-- **ARS (Agent Registry Spine)** *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against.
+- **ARS (Agent Registry Spine)** *(private)*: the system of record layer for every agentic asset that discovery reads from and governance enforces against.
 - **SRS (Sovereign Runtime Spine)** *(private)*: the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS).
 
 ---
@@ -450,7 +450,7 @@ Within AGS itself, bad governance decomposes further: policy-coverage gap, ident
 - Composite Risk Index: [github.com/drewmattie-code/Composite-Risk-Index](https://github.com/drewmattie-code/Composite-Risk-Index) *(private)*
 - Durable Context Spine: [github.com/drewmattie-code/Durable-Context-Spine](https://github.com/drewmattie-code/Durable-Context-Spine)
 - Grounded Data Spine *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements
-- Agent Registry Spine *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against
+- Agent Registry Spine *(private)*: the system of record layer for every agentic asset that discovery reads from and governance enforces against
 - Sovereign Runtime Spine *(private)*: the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS)
 
 ---
