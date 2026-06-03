@@ -373,12 +373,13 @@ AGS is also compatible with the companion specifications in the catalog:
 - **[DCS (Durable Context Spine)](https://github.com/drewmattie-code/Durable-Context-Spine)**: durable state and memory across sessions and time. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions.
 - **GDS (Grounded Data Spine)** *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements.
 - **ARS (Agent Registry Spine)** *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against.
+- **SRS (Sovereign Runtime Spine)** *(private)*: the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS).
 
 ---
 
-## 8. The nine-way failure attribution principle
+## 8. The ten-way failure attribution principle
 
-AGS owns the **bad governance** surface in the catalog's failure-attribution dictionary. As the catalog has grown to eight specs (PDS, ACS, ESF, CRI, AGS, DCS, GDS, ARS), the dictionary has grown to **nine** attribution surfaces:
+AGS owns the **bad governance** surface in the catalog's failure-attribution dictionary. As the catalog has grown to nine specs (PDS, ACS, ESF, CRI, AGS, DCS, GDS, ARS, SRS), the dictionary has grown to **ten** attribution surfaces:
 
 | Attribution | Owned by | "Failure looked like..." |
 |---|---|---|
@@ -391,8 +392,9 @@ AGS owns the **bad governance** surface in the catalog's failure-attribution dic
 | Bad continuity | DCS | State or memory lost, stale, or mis-scoped across sessions and time |
 | Bad grounding | GDS | Metric resolved to the wrong semantic definition, or an entitlement boundary leaked |
 | Bad or missing registry | ARS | An agentic asset was never inventoried, so discovery could not surface it and governance could not enforce against it |
+| Bad or unbounded execution | SRS | A first-party agent ran on an untrusted or unbounded runtime, so execution escaped sovereign control |
 
-Within AGS itself, bad governance decomposes further: policy-coverage gap, identity-attestation gap, audit-tamper failure, tool-supply-chain compromise, shadow-agent presence, unbounded consumption, a missing approval gate, an unverified compiled-policy artifact, and a purpose-unrecorded access grant. The nine-attribution model makes any catalog-grade system failure locatable to a single ownable layer.
+Within AGS itself, bad governance decomposes further: policy-coverage gap, identity-attestation gap, audit-tamper failure, tool-supply-chain compromise, shadow-agent presence, unbounded consumption, a missing approval gate, an unverified compiled-policy artifact, and a purpose-unrecorded access grant. The ten-attribution model makes any catalog-grade system failure locatable to a single ownable layer.
 
 ---
 
@@ -449,6 +451,7 @@ Within AGS itself, bad governance decomposes further: policy-coverage gap, ident
 - Durable Context Spine: [github.com/drewmattie-code/Durable-Context-Spine](https://github.com/drewmattie-code/Durable-Context-Spine)
 - Grounded Data Spine *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements
 - Agent Registry Spine *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against
+- Sovereign Runtime Spine *(private)*: the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS)
 
 ---
 
@@ -460,6 +463,7 @@ This specification follows semantic versioning. Breaking changes to the conceptu
 - **v1.0**: first public release under CC BY 4.0 + MIT (2026-05-28).
 - **v1.1** (2026-06-02): added two principles, #11 (cost and consumption governance) and #12 (human-in-the-loop approval gates), bringing the count to twelve. Added convergence citations: Anthropic "Zero Trust for AI Agents", MuleSoft Agent Fabric, UiPath AI Trust Layer, OpenFGA, Cerbos, e2b, Daytona, Composio, MCP server registry, Langfuse, Pydantic Logfire, Promptfoo, Inspect (UK AISI), the OpenAI Codex harness, the Anthropic self-hosted sandboxes cookbook, and the Av1d multi-agent workflows field guide. Added the DCS composition cross-reference and updated the catalog to eight specs (adding DCS public, GDS and ARS private/forthcoming) and the failure-attribution dictionary to nine-way.
 - **v1.1** (2026-06-02, same-day consolidation): added principle #13 (purpose-based access control), bringing the count to thirteen, and enriched two existing principles from the AWS Bedrock AgentCore and Palantir Foundry AIP analyses. Principle #1 now names that deterministic enforcement is co-located with the tool-mediation chokepoint, the same point PDS uses for discovery (AgentCore Policy enforced at the AgentCore Gateway). Principle #4 now names natural-language-front, formal-language-back policy authoring with an automated-reasoning verification pass on the compiled artifact before deploy (AgentCore Policy compiles natural language to Cedar and verifies against the tool schema). Principle #13 is the Palantir Foundry purpose-based-access pattern: an entitlement granted to a declared purpose with recorded rationale, evaluated against the requesting identity and audited against the purpose. Added AgentCore Policy and Palantir purpose-based access to the convergence citations. Catalog stays eight specs; failure attribution stays nine-way.
+- **v1.1** (2026-06-02, same-day consolidation): added SRS (Sovereign Runtime Spine) as the ninth spec, a private/forthcoming execution-substrate sibling (the sovereign first-party agent runtime that first-party agents run on; outside agents and tools plug into the spine, first-party agents run on SRS), taking the catalog to nine specs and the failure-attribution dictionary to ten-way (adding "bad or unbounded execution -> SRS"). Principle count is unchanged at thirteen.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ags
-description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance, including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io/OpenFGA evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, token-budget and cost governance, human-in-the-loop approval gates, natural-language-to-formal policy authoring and verification, purpose-based access control, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "our agents are burning tokens / runaway loop", "we need a human approval step", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer, addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the eight-spec SaaSquach AI Labs catalog alongside PDS, ACS, ESF, CRI, DCS, GDS, and ARS.
+description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance, including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io/OpenFGA evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, token-budget and cost governance, human-in-the-loop approval gates, natural-language-to-formal policy authoring and verification, purpose-based access control, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "our agents are burning tokens / runaway loop", "we need a human approval step", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer, addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the nine-spec SaaSquach AI Labs catalog alongside PDS, ACS, ESF, CRI, DCS, GDS, ARS, and SRS.
 ---
 
 # Agent Governance Spine (AGS): architectural consultant
@@ -10,7 +10,7 @@ You are acting as an architectural consultant for the Agent Governance Spine pat
 **Important context:** AGS is a published open specification, not a library. Your job is to help the user APPLY the pattern to their architecture. You are not installing software for them.
 
 Public spec: https://github.com/drewmattie-code/Agent-Governance-Spine
-Catalog peers: PDS · ACS · ESF · CRI · DCS · GDS · ARS
+Catalog peers: PDS · ACS · ESF · CRI · DCS · GDS · ARS · SRS
 
 ---
 
@@ -159,9 +159,9 @@ AGS principles apply differently depending on where the user is:
 
 ---
 
-## Step 9: Composition with PDS, ACS, ESF, CRI, DCS, GDS, ARS
+## Step 9: Composition with PDS, ACS, ESF, CRI, DCS, GDS, ARS, SRS
 
-AGS is one of eight specs in the same catalog. AGS is the **protocol-layer substrate**: every agent action in a PDS / ACS / ESF / CRI / DCS system passes through AGS first.
+AGS is one of nine specs in the same catalog. AGS is the **protocol-layer substrate**: every agent action in a PDS / ACS / ESF / CRI / DCS system passes through AGS first.
 
 - **PDS** scopes tool surface; AGS governs whether each tool call is allowed.
 - **ACS** coordinates multi-agent work; AGS attests identity on every handoff.
@@ -170,8 +170,9 @@ AGS is one of eight specs in the same catalog. AGS is the **protocol-layer subst
 - **DCS** holds durable state and memory across sessions and time; the same per-agent identity AGS uses to authorize actions scopes DCS memory, and AGS's tamper-evident audit covers durable-memory writes.
 - **GDS** *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements.
 - **ARS** *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against.
+- **SRS** *(private)*: the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS).
 
-**The nine-way attribution dictionary:**
+**The ten-way attribution dictionary:**
 
 | Attribution | Owned by |
 |---|---|
@@ -184,8 +185,9 @@ AGS is one of eight specs in the same catalog. AGS is the **protocol-layer subst
 | Bad continuity | DCS |
 | Bad grounding | GDS |
 | Bad or missing registry | ARS |
+| Bad or unbounded execution | SRS |
 
-When discussing AGS, mention this nine-attribution dictionary is the meta-architectural payoff of the full eight-spec catalog.
+When discussing AGS, mention this ten-attribution dictionary is the meta-architectural payoff of the full nine-spec catalog.
 
 ---
 
@@ -202,4 +204,4 @@ When discussing AGS, mention this nine-attribution dictionary is the meta-archit
 Agent Governance Spine specification by Drew Mattie, SaaSquach AI Labs (a division of Charles & Roe Inc.), 2026. CC BY 4.0.
 Spec: https://github.com/drewmattie-code/Agent-Governance-Spine
 SPEC: https://github.com/drewmattie-code/Agent-Governance-Spine/blob/main/SPEC.md
-Catalog: PDS · ACS · ESF · CRI · AGS · DCS · GDS · ARS
+Catalog: PDS · ACS · ESF · CRI · AGS · DCS · GDS · ARS · SRS

@@ -27,7 +27,7 @@ It will NOT install software, pretend to be a runnable library, or recite the wh
 
 ## Composition with PDS, ACS, ESF, CRI, and DCS
 
-AGS is one of eight specifications in the same architectural catalog (PDS, ACS, ESF, CRI, AGS, DCS public; GDS and ARS private/forthcoming). Install the public skills for full coverage:
+AGS is one of nine specifications in the same architectural catalog (PDS, ACS, ESF, AGS, DCS public; CRI, GDS, ARS, SRS private/forthcoming). Install the public skills for full coverage:
 
 ```bash
 mkdir -p ~/.claude/skills/{pds,acs,esf,cri,ags,dcs}

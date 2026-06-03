@@ -70,7 +70,7 @@ Every arrow into a tool, every message between agents, every delegation: routed 
 
 # Where AGS fits in the catalog
 
-AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalog, which now spans eight specs. It sits as a peer governance-substrate alongside the data/coordination layers:
+AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalog, which now spans nine specs. It sits as a peer governance-substrate alongside the data/coordination layers:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -108,7 +108,7 @@ AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalo
 
 PDS, ACS, ESF, CRI describe *how data and coordination flow through* an agent system; DCS describes *what persists across sessions and time*. AGS describes *what is allowed and recorded*. Every action that any of those layers initiate passes through the AGS spine before it can change anything in the world.
 
-The catalog now spans eight specs. Two private/forthcoming siblings round it out: **GDS (Grounded Data Spine)**, a canonical semantic model (text-to-metric) plus data-level entitlements; and **ARS (Agent Registry Spine)**, the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against. See the [Catalog](#catalog) section for the full eight-spec listing.
+The catalog now spans nine specs. Three private/forthcoming siblings round it out: **GDS (Grounded Data Spine)**, a canonical semantic model (text-to-metric) plus data-level entitlements; **ARS (Agent Registry Spine)**, the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against; and **SRS (Sovereign Runtime Spine)**, the execution substrate, the sovereign first-party agent runtime that first-party agents run ON (outside agents and tools plug INTO the spine; first-party agents run on SRS). See the [Catalog](#catalog) section for the full nine-spec listing.
 
 AGS composes directly with DCS, the durable-state sibling. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions. Bad governance is an AGS failure; bad continuity is a DCS failure.
 
@@ -132,9 +132,9 @@ AGS composes directly with DCS, the durable-state sibling. The same per-agent id
 
 Full discussion of each principle, with problems, patterns, and implementation notes, lives in [SPEC.md](SPEC.md).
 
-# The failure attribution dictionary, now nine-way
+# The failure attribution dictionary, now ten-way
 
-As the catalog has grown to eight specs, the failure-attribution dictionary has grown with it. AGS owns the **bad governance** surface. The full dictionary is now **nine-way**:
+As the catalog has grown to nine specs, the failure-attribution dictionary has grown with it. AGS owns the **bad governance** surface. The full dictionary is now **ten-way**:
 
 | Attribution | Owned by | "Failure looked like..." |
 |---|---|---|
@@ -147,8 +147,9 @@ As the catalog has grown to eight specs, the failure-attribution dictionary has 
 | Bad continuity | DCS | State or memory lost, stale, or mis-scoped across sessions and time |
 | Bad grounding | GDS | Metric resolved to the wrong semantic definition, or an entitlement boundary leaked |
 | Bad or missing registry | ARS | An agentic asset was never inventoried, so discovery could not surface it and governance could not enforce against it |
+| Bad or unbounded execution | SRS | A first-party agent ran on an untrusted or unbounded runtime, so execution escaped sovereign control |
 
-This nine-attribution dictionary is the meta-architectural contribution of the full SaaSquach AI Labs catalog. Build, measure, and own each surface separately.
+This ten-attribution dictionary is the meta-architectural contribution of the full SaaSquach AI Labs catalog. Build, measure, and own each surface separately.
 
 # Industry context: convergence on the same pattern
 
@@ -233,7 +234,7 @@ The sources above document INDIVIDUAL implementations and isolated primitives. A
 3. An **8-step build sequence** from skeleton to first reference deployment
 4. **Anti-patterns** to avoid
 5. A **portable, citable specification** under CC BY 4.0: adopt, adapt, build commercial products on top, with attribution
-6. **Explicit composition with PDS, ACS, ESF, CRI, and DCS**: the nine-way failure attribution dictionary the eight-spec catalog enables
+6. **Explicit composition with PDS, ACS, ESF, CRI, and DCS**: the ten-way failure attribution dictionary the nine-spec catalog enables
 
 If your team is independently converging on this pattern (as Microsoft, Anthropic, MuleSoft, UiPath, OPA, Cedar, SPIFFE, Permit.io and others already have), AGS gives you a vocabulary, a checklist, and a published artifact you can hand to your regulators / auditors / customers.
 
@@ -321,7 +322,7 @@ Issues, examples, implementation reports, and policy patterns welcome. See [CONT
 
 # Catalog
 
-AGS is the fifth specification in the SaaSquach AI Labs architectural catalog, which now spans eight specs:
+AGS is the fifth specification in the SaaSquach AI Labs architectural catalog, which now spans nine specs:
 
 - **[PDS: Progressive Discovery Spine](https://github.com/drewmattie-code/Progressive-Discovery-Spine)**, single-agent tool discovery
 - **[ACS: Adversarial Coordination Spine](https://github.com/drewmattie-code/Adversarial-Coordination-Spine)**, multi-agent coordination
@@ -331,8 +332,9 @@ AGS is the fifth specification in the SaaSquach AI Labs architectural catalog, w
 - **[DCS: Durable Context Spine](https://github.com/drewmattie-code/Durable-Context-Spine)**, durable state and memory across sessions and time
 - **GDS: Grounded Data Spine** *(private)*, a canonical semantic model (text-to-metric) plus data-level entitlements
 - **ARS: Agent Registry Spine** *(private)*, the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against
+- **SRS: Sovereign Runtime Spine** *(private)*, the execution substrate, the sovereign first-party agent runtime that first-party agents run on (outside agents and tools plug into the spine; first-party agents run on SRS)
 
-Together they form the nine-way failure attribution dictionary (bad customer/tool data / bad world data / bad reasoning / bad evaluation / bad scoring / bad governance / bad continuity / bad grounding / bad or missing registry) documented above. Each spec plants a flag at a different layer of the agent-architecture stack.
+Together they form the ten-way failure attribution dictionary (bad customer/tool data / bad world data / bad reasoning / bad evaluation / bad scoring / bad governance / bad continuity / bad grounding / bad or missing registry / bad or unbounded execution) documented above. Each spec plants a flag at a different layer of the agent-architecture stack.
 
 # Author
 

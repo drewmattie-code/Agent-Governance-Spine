@@ -31,8 +31,8 @@ abstract: >
   artifact, deterministic enforcement co-located with the tool-mediation
   chokepoint, and purpose-based access control. The pattern is defined as
   thirteen principles plus reference SLAs and a numbered build sequence.
-  It is the fifth specification in the eight-spec SaaSquach AI Labs catalog
-  alongside PDS, ACS, ESF, CRI, DCS, GDS, and ARS.
+  It is the fifth specification in the nine-spec SaaSquach AI Labs catalog
+  alongside PDS, ACS, ESF, CRI, DCS, GDS, ARS, and SRS.
 keywords:
   - agent-governance
   - policy-as-code
