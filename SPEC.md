@@ -1,6 +1,6 @@
 # Agent Governance Spine: Specification
 
-> **Status:** v1.0 · Drew Mattie · 2026-05-28
+> **Status:** v1.1 · Drew Mattie · 2026-06-02
 > **License:** [CC BY 4.0](LICENSE-CC-BY-4.0)
 
 This is the full technical specification for the Agent Governance Spine pattern. The [README](README.md) is the elevator pitch; this document is the build reference.
@@ -64,7 +64,7 @@ Denied actions are not "unlikely." They are **structurally impossible** because 
 
 ---
 
-## 3. The 10 principles
+## 3. The 12 principles
 
 ### 3.1: Deterministic policy enforcement, not prompt-level safety
 
@@ -224,6 +224,41 @@ This applies to teams with frontier-lab capability (we don't, today). Most teams
 
 ---
 
+### 3.11: Cost and consumption governance
+
+**Problem.** Policy, identity, and audit cover *what* an agent is allowed to do and *who* did it, but not *how much it consumed*. Token consumption, spend, and data-flow volume are ungoverned by default. An agent that retries without backoff is simultaneously a reliability incident and a cost incident. A concrete instance from our own systems: an ingestion adapter with an empty API key hit a 429, retried with no backoff, and produced 15.6M errors and a 5GB log before the process was killed. The same loop that burns reliability burns money, and neither was bounded.
+
+**Pattern.** Treat token consumption, spend, and data-flow volume as a first-class governance surface alongside policy, identity, and audit:
+
+- **(a) Token budgets.** Per-agent and per-task budgets with hard ceilings and graceful degradation at the limit, not a silent stall and not an unbounded retry. The ceiling is enforced deterministically at the spine, the same way a deny is.
+- **(b) Per-agent spend attribution.** Every token is traceable to an agent identity, reusing the same SPIFFE / DID / mTLS identity AGS already uses for action authorization (principle #2). "An agent spent it" is not cost accounting, the same way "an agent did it" is not incident response.
+- **(c) Cost-aware model routing.** Route to the cheapest model that clears the task's quality bar; escalate model tiers only when the task demands it.
+- **(d) Spend visibility and alerting.** Real-time budget burn, per-agent and per-task dashboards, and anomaly detection on runaway loops, with alerting to humans before the budget is exhausted.
+
+This is the deterministic counterweight to "tokenmaxxing." Cost governance closes the loop between the safety posture of principles #1-#10 and operational economics: a runaway loop is caught by the same governance surface whether you frame it as a reliability problem or a spend problem.
+
+**Implementation.** A consumption meter wraps the model and tool boundaries, attributing usage to the requesting agent identity and decrementing the per-agent and per-task budget on every call. Budget exhaustion is a policy outcome (deny or escalate), not an application-level exception swallowed by a retry loop. Spend and burn-rate metrics emit on the same OpenTelemetry path as the audit log; anomaly detection (sudden burn-rate spike, retry storm) triggers the same alerting and kill-switch machinery as an SLO breach (principle #6).
+
+**Anti-pattern.** Treating cost as a billing-system afterthought reconciled monthly. Retry-without-backoff loops with no ceiling. A shared spend pool with no per-agent attribution. "We'll notice on the invoice." By then the runaway loop has already run.
+
+Source convergence: MuleSoft's AI Gateway LLM Governance and UiPath's AI Trust Layer both treat token, cost, and data-flow as a governance surface, not a billing afterthought.
+
+---
+
+### 3.12: Human-in-the-loop approval gates
+
+**Problem.** The deterministic gate of principle #1 returns allow, deny, or escalate. The escalate path implies a human, but explicit human-in-the-loop approval is not a first-class governance primitive in most deployments. Some action classes (irreversible operations, spend above a threshold, production mutations) should neither auto-execute nor be flatly denied. They should pause for human judgment. Without a named primitive for this, teams either over-deny (and the agent is useless) or auto-allow (and the agent is dangerous).
+
+**Pattern.** Human-in-the-loop (HITL) approval gates are a first-class policy outcome alongside allow and deny. Deterministic policy can encode *"this action class requires human approval"* for an identified action class, principal, or context. The action is held, a human is notified, and the action executes only on explicit approval (or expires / is rejected). This is the governed bridge between autonomous action and human judgment: the machinery that lets an agent operate autonomously on the routine path while routing the irreversible, the expensive, and the high-blast-radius to a person.
+
+The gate is policy-as-code (principle #4): the set of action classes requiring approval is versioned, lintable, testable, and PR-reviewed, not a hardcoded prompt or an operator's tribal memory. The approval, the approver's identity, and the latency to decision are all recorded in the tamper-evident audit log (principle #3).
+
+**Implementation.** The policy engine returns a third decision, `require-approval`, in addition to allow and deny. The spine holds the action in a pending state, notifies the configured approver channel (a control-plane UI, a ticket, a chat approval), and resumes or aborts on the human's decision. The audit record captures who approved, when, and against which policy version. Approval timeouts default to deny. Examples of productized HITL gates: UiPath's Action Center, and the approval-gate layer practitioners describe as the top of the agent-harness oversight stack ("leave the branch for my morning review").
+
+**Anti-pattern.** Encoding approval requirements in the system prompt ("ask the user before doing anything destructive"), which is principle-#1 trust collapse wearing a different hat. Approval gates with no audit of who approved. Approval timeouts that default to allow. A single global approver with no per-action-class scoping.
+
+---
+
 ## 4. SLAs and success metrics
 
 | Metric | Target | Rationale |
@@ -239,6 +274,11 @@ This applies to teams with frontier-lab capability (we don't, today). Most teams
 | Adversarial penetration test (red team) ASR | < 1% structural ASR | Acknowledged: this is < model-layer ASR by orders of magnitude. |
 | Time from policy decision to audit-log record | < 1 s | Audit lag is an attack window. |
 | Kill-switch activation time | < 10 s | A runaway agent must be stoppable in seconds. |
+| Actions executed without consumption attribution | 0 | Every token is traceable to an agent identity. |
+| Per-agent / per-task token budget enforcement | Hard ceiling, no unbounded retry | A runaway loop is a cost incident as well as a reliability one. |
+| Runaway-loop / burn-rate anomaly detection | Alert before budget exhaustion | The invoice is too late. |
+| Approval-required action classes auto-executed | 0 | HITL action classes pause for human judgment, never auto-allow. |
+| Approval-gate timeout default | Deny | A pending approval that expires must not fall through to allow. |
 
 ---
 
@@ -273,6 +313,8 @@ AGS is built in the following sequence from skeleton to first reference deployme
 | Manual agent registration | Humans miss things; unregistered agents accumulate silently | Active discovery via process / config / repo scanning (principle #8) |
 | One-time plugin trust vote | Trust degrades over time without continuous signal | Composite trust score with continuous inputs (principle #9) |
 | Training agents to be compliant with users only | Runtime policy bears the full load; learning-at-runtime is friction | Governance-aware training where feasible (principle #10) |
+| Ungoverned token spend reconciled on the invoice | A retry-without-backoff loop is a cost incident no one bounded | Per-agent budgets with hard ceilings and burn-rate alerting (principle #11) |
+| Approval requirements encoded in the system prompt | Principle-#1 trust collapse wearing a different hat | Deterministic require-approval as a first-class policy outcome (principle #12) |
 
 ---
 
@@ -282,36 +324,51 @@ AGS is compatible with, and built on top of, these standards:
 
 - **OPA (Open Policy Agent)**: CNCF general-purpose policy engine; the reference implementation for principle #4
 - **AWS Cedar**: verified analyzable authorization language; alternative for principle #4
+- **OpenFGA (CNCF)**: Zanzibar-style relationship-based (ReBAC) authorization engine; a ReBAC variant for principle #1, suited to acting-on-behalf-of delegation chains
+- **Cerbos**: stateless, language-agnostic policy decision point; a PDP-as-sidecar variant for principle #1
 - **Permit.io**: commercial policy-as-code with explicit agent-governance framing
 - **SPIFFE / SPIRE**: CNCF workload identity; reference for principle #2
 - **W3C Decentralized Identifiers (DIDs) v1.0**: W3C Recommendation; alternative identity model for principle #2
+- **e2b / Daytona**: OSS sandbox runtimes for agent-generated code; execution substrate for principle #5 (e2b for ephemeral microVMs, Daytona for persistent dev-environment state)
+- **Anthropic self-hosted sandboxes cookbook**: per-session isolated sandboxes with environment-key credential isolation; substrate for principle #5
+- **MCP server registry (modelcontextprotocol/servers)**: the tool-surface registry whose protocol principle #1 gates
+- **Langfuse / Pydantic Logfire**: OTel-native trace fabrics feeding the principle #3 audit-log signal layer
+- **Promptfoo / Inspect (UK AISI)**: production and sovereign-grade red-teaming and eval frameworks complementing the academic empirical case
 - **OWASP LLM06:2025 (Excessive Agency)**: risk taxonomy framing
 - **OWASP Agentic AI Threats and Mitigations** (Feb 2025): companion taxonomy
-- **Microsoft Agent Governance Toolkit (AGT)**: the most mature productized implementation of all 10 principles
+- **Microsoft Agent Governance Toolkit (AGT)**: the most mature productized implementation of the core principles
+- **Anthropic "Zero Trust for AI Agents"**: buyer-facing zero-trust framework structurally equivalent to AGS; three-tier maturity model across identity, access, privilege scoping, resource boundaries, audit, and governance
+- **MuleSoft Agent Fabric (Salesforce) / UiPath AI Trust Layer + Automation Ops**: major-vendor agent control planes productizing deterministic governance, identity, audit, LLM-usage / cost control (principle #11), and human-in-the-loop approval (principle #12, via Action Center)
 
-AGS is also compatible with the four companion specifications in the catalog:
+AGS is also compatible with the companion specifications in the catalog:
 
-- **[PDS (Progressive Discovery Spine)](https://github.com/drewmattie-code/Progressive-Discovery-Spine)**: single-agent tool discipline; PDS gateway sits on top of AGS substrate.
+- **[PDS (Progressive Discovery Spine)](https://github.com/drewmattie-code/Progressive-Discovery-Spine)**: single-agent tool discovery; PDS gateway sits on top of AGS substrate.
 - **[ACS (Adversarial Coordination Spine)](https://github.com/drewmattie-code/Adversarial-Coordination-Spine)**: multi-agent coordination; every cross-agent handoff is governed by AGS.
 - **[ESF (External Signal Fabric)](https://github.com/drewmattie-code/External-Signal-Fabric)**: external signals; AGS governs which agents can subscribe to which signal classes.
-- **CRI (Composite Risk Index)**: composite scoring (private); AGS principle #9 (plugin trust scoring) is a CRI-shaped fusion at the agent / tool layer.
+- **CRI (Composite Risk Index)**: composite risk scoring (private); AGS principle #9 (plugin trust scoring) is a CRI-shaped fusion at the agent / tool layer.
+- **[DCS (Durable Context Spine)](https://github.com/drewmattie-code/Durable-Context-Spine)**: durable state and memory across sessions and time. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions.
+- **GDS (Grounded Data Spine)** *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements.
+- **ARS (Agent Registry Spine)** *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against.
 
 ---
 
-## 8. The six-way failure attribution principle
+## 8. The nine-way failure attribution principle
 
-AGS extends the catalog's failure-attribution dictionary from five (PDS+ESF+ACS-planner+ACS-evaluator+CRI) to **six** by adding the governance-attribution surface:
+AGS owns the **bad governance** surface in the catalog's failure-attribution dictionary. As the catalog has grown to eight specs (PDS, ACS, ESF, CRI, AGS, DCS, GDS, ARS), the dictionary has grown to **nine** attribution surfaces:
 
 | Attribution | Owned by | "Failure looked like..." |
 |---|---|---|
-| Bad customer data | PDS | Wrong supplier ID, stale internal cache, missing record |
+| Bad customer / tool data | PDS | Wrong supplier ID, stale internal cache, missing record |
 | Bad world data | ESF | Expired signal, mis-tagged advisory, broken adapter |
 | Bad reasoning | ACS Planner | Plan unsupported by signals |
 | Bad evaluation | ACS Evaluator | Rubber-stamped contract violation |
 | Bad scoring | CRI | Confident score on insufficient inputs |
 | **Bad governance** | **AGS** | **Policy gap (action wasn't denied because no rule covered it), identity ambiguity (we know an agent did it but not which), audit gap (no record exists), policy drift (deployed policy differs from approved policy)** |
+| Bad continuity | DCS | State or memory lost, stale, or mis-scoped across sessions and time |
+| Bad grounding | GDS | Metric resolved to the wrong semantic definition, or an entitlement boundary leaked |
+| Bad or missing registry | ARS | An agentic asset was never inventoried, so discovery could not surface it and governance could not enforce against it |
 
-Within AGS itself, bad governance decomposes further: policy-coverage gap, identity-attestation gap, audit-tamper failure, tool-supply-chain compromise, shadow-agent presence. The six-attribution model makes any catalog-grade system failure locatable to a single ownable layer.
+Within AGS itself, bad governance decomposes further: policy-coverage gap, identity-attestation gap, audit-tamper failure, tool-supply-chain compromise, shadow-agent presence, unbounded consumption, and a missing approval gate. The nine-attribution model makes any catalog-grade system failure locatable to a single ownable layer.
 
 ---
 
@@ -320,17 +377,39 @@ Within AGS itself, bad governance decomposes further: policy-coverage gap, ident
 ### Policy + identity foundations
 - Open Policy Agent (CNCF): [openpolicyagent.org/docs](https://www.openpolicyagent.org/docs/)
 - AWS Cedar: [docs.cedarpolicy.com](https://docs.cedarpolicy.com/) · Cedar paper [arXiv:2403.04651](https://arxiv.org/pdf/2403.04651)
+- OpenFGA (CNCF): [github.com/openfga/openfga](https://github.com/openfga/openfga)
+- Cerbos: [github.com/cerbos/cerbos](https://github.com/cerbos/cerbos)
 - Permit.io: [permit.io](https://www.permit.io/)
 - SPIFFE / SPIRE (CNCF): [spiffe.io](https://spiffe.io/docs/latest/spiffe-about/overview/)
 - W3C Decentralized Identifiers (DIDs) v1.0: [w3.org/TR/did-core](https://www.w3.org/TR/did-core/)
 
-### Productized governance kernels
+### Sandbox + execution substrate
+- e2b: [github.com/e2b-dev/e2b](https://github.com/e2b-dev/e2b)
+- Daytona: [github.com/daytonaio/daytona](https://github.com/daytonaio/daytona)
+- Anthropic, *self-hosted sandboxes cookbook*: [github.com/anthropics/claude-cookbooks](https://github.com/anthropics/claude-cookbooks/tree/main/managed_agents/self_hosted_sandboxes)
+
+### Tool surface + audit substrate
+- MCP server registry: [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers)
+- Langfuse: [github.com/langfuse/langfuse](https://github.com/langfuse/langfuse)
+- Pydantic Logfire: [github.com/pydantic/logfire](https://github.com/pydantic/logfire)
+
+### Productized governance kernels and control planes
 - Microsoft, *Agent Governance Toolkit*: [github.com/microsoft/agent-governance-toolkit](https://github.com/microsoft/agent-governance-toolkit)
+- Composio: [github.com/ComposioHQ/composio](https://github.com/ComposioHQ/composio)
+- Anthropic, *Zero Trust for AI Agents* (2026): [anthropic.com](https://www.anthropic.com/)
+- MuleSoft Agent Fabric (Salesforce): [mulesoft.com/ai/agent-fabric](https://www.mulesoft.com/ai/agent-fabric)
+- UiPath AI Trust Layer: [docs.uipath.com](https://docs.uipath.com/automation-cloud/automation-cloud/latest/admin-guide/about-ai-trust-layer)
 
 ### Empirical case for deterministic enforcement
 - Chao et al., *JailbreakBench* (NeurIPS 2024): [arXiv:2404.01318](https://arxiv.org/abs/2404.01318)
 - Andriushchenko, Croce, Flammarion, *Jailbreaking Leading Safety-Aligned LLMs with Simple Adaptive Attacks* (ICLR 2025): [arXiv:2404.02151](https://arxiv.org/abs/2404.02151)
 - Microsoft AI Red Team, *3 Takeaways from Red Teaming 100 Generative AI Products* (Jan 2025): [microsoft.com](https://www.microsoft.com/en-us/security/blog/2025/01/13/3-takeaways-from-red-teaming-100-generative-ai-products/)
+- Promptfoo: [github.com/promptfoo/promptfoo](https://github.com/promptfoo/promptfoo)
+- Inspect (UK AI Security Institute): [github.com/UKGovernmentBEIS/inspect_ai](https://github.com/UKGovernmentBEIS/inspect_ai)
+
+### Practitioner convergence
+- OpenAI, *Codex harness engineering*: [openai.com](https://openai.com/index/harness-engineering/)
+- Av1d, *How to Build Multi-Agent Workflows* (2026): [@Av1dlive]
 
 ### OWASP risk taxonomy
 - OWASP LLM06:2025, *Excessive Agency*: [genai.owasp.org](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/)
@@ -341,6 +420,9 @@ Within AGS itself, bad governance decomposes further: policy-coverage gap, ident
 - Adversarial Coordination Spine: [github.com/drewmattie-code/Adversarial-Coordination-Spine](https://github.com/drewmattie-code/Adversarial-Coordination-Spine)
 - External Signal Fabric: [github.com/drewmattie-code/External-Signal-Fabric](https://github.com/drewmattie-code/External-Signal-Fabric)
 - Composite Risk Index: [github.com/drewmattie-code/Composite-Risk-Index](https://github.com/drewmattie-code/Composite-Risk-Index) *(private)*
+- Durable Context Spine: [github.com/drewmattie-code/Durable-Context-Spine](https://github.com/drewmattie-code/Durable-Context-Spine)
+- Grounded Data Spine *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements
+- Agent Registry Spine *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against
 
 ---
 
@@ -350,6 +432,7 @@ This specification follows semantic versioning. Breaking changes to the conceptu
 
 - **v0.1-draft**: initial draft (2026-05-26). Triggered by Microsoft Agent Governance Toolkit release. Internal review.
 - **v1.0**: first public release under CC BY 4.0 + MIT (2026-05-28).
+- **v1.1** (2026-06-02): added two principles, #11 (cost and consumption governance) and #12 (human-in-the-loop approval gates), bringing the count to twelve. Added convergence citations: Anthropic "Zero Trust for AI Agents", MuleSoft Agent Fabric, UiPath AI Trust Layer, OpenFGA, Cerbos, e2b, Daytona, Composio, MCP server registry, Langfuse, Pydantic Logfire, Promptfoo, Inspect (UK AISI), the OpenAI Codex harness, the Anthropic self-hosted sandboxes cookbook, and the Av1d multi-agent workflows field guide. Added the DCS composition cross-reference and updated the catalog to eight specs (adding DCS public, GDS and ARS private/forthcoming) and the failure-attribution dictionary to nine-way.
 
 ---
 

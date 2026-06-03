@@ -25,12 +25,12 @@ It's an architectural consultant, not a code library. When triggered, Claude (or
 
 It will NOT install software, pretend to be a runnable library, or recite the whole spec at you. The point is fast diagnosis.
 
-## Composition with PDS, ACS, ESF, and CRI
+## Composition with PDS, ACS, ESF, CRI, and DCS
 
-AGS is one of five specifications in the same architectural catalog. Install all five for full coverage:
+AGS is one of eight specifications in the same architectural catalog (PDS, ACS, ESF, CRI, AGS, DCS public; GDS and ARS private/forthcoming). Install the public skills for full coverage:
 
 ```bash
-mkdir -p ~/.claude/skills/{pds,acs,esf,cri,ags}
+mkdir -p ~/.claude/skills/{pds,acs,esf,cri,ags,dcs}
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Progressive-Discovery-Spine/main/dist/skills/pds/SKILL.md \
   -o ~/.claude/skills/pds/SKILL.md
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/External-Signal-Fabric/main/dist/skills/esf/SKILL.md \
@@ -41,6 +41,8 @@ curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Composite-Risk-Inde
   -o ~/.claude/skills/cri/SKILL.md
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Agent-Governance-Spine/main/dist/skills/ags/SKILL.md \
   -o ~/.claude/skills/ags/SKILL.md
+curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Durable-Context-Spine/main/dist/skills/dcs/SKILL.md \
+  -o ~/.claude/skills/dcs/SKILL.md
 ```
 
 ## Other clients
@@ -55,7 +57,7 @@ For agents that don't natively support the skills convention, the SKILL.md is al
 
 ## Versioning
 
-The skill version tracks the spec version. Current: v0.1-draft (matches SPEC.md v0.1-draft).
+The skill version tracks the spec version. Current: v1.1 (matches SPEC.md v1.1).
 
 When the spec evolves, the skill evolves with it. Watch this repo for updates.
 

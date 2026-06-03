@@ -6,7 +6,7 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/spec-CC_BY_4.0-blue?style=flat-square)](LICENSE-CC-BY-4.0)
 [![License: MIT](https://img.shields.io/badge/code-MIT-green?style=flat-square)](LICENSE-MIT)
-[![Status: v1.0](https://img.shields.io/badge/status-v1.0-0F766E?style=flat-square)](SPEC.md)
+[![Status: v1.1](https://img.shields.io/badge/status-v1.1-0F766E?style=flat-square)](SPEC.md)
 [![Catalog: 5th spec](https://img.shields.io/badge/catalog-5th_spec-7C3AED?style=flat-square)](#catalog)
 
 </div>
@@ -70,7 +70,7 @@ Every arrow into a tool, every message between agents, every delegation: routed 
 
 # Where AGS fits in the catalog
 
-AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalog. It sits as a peer governance-substrate alongside the four data/coordination layers:
+AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalog, which now spans eight specs. It sits as a peer governance-substrate alongside the data/coordination layers:
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -93,6 +93,11 @@ AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalo
 └──────────────────────────┬───────────────────────────────┘
                            ↓
 ┌──────────────────────────────────────────────────────────┐
+│ DCS - Durable Context Spine                               │  ← durable state
+│ state and memory across sessions and time                 │
+└──────────────────────────┬───────────────────────────────┘
+                           ↓
+┌──────────────────────────────────────────────────────────┐
 │ Model Context Protocol (MCP)                              │
 └──────────────────────────┬───────────────────────────────┘
                            ↓
@@ -101,9 +106,13 @@ AGS is the **fifth specification** in the SaaSquach AI Labs architectural catalo
 └──────────────────────────────────────────────────────────┘
 ```
 
-PDS, ACS, ESF, CRI describe *how data and coordination flow through* an agent system. AGS describes *what is allowed and recorded*. Every action that any of those four layers initiate passes through the AGS spine before it can change anything in the world.
+PDS, ACS, ESF, CRI describe *how data and coordination flow through* an agent system; DCS describes *what persists across sessions and time*. AGS describes *what is allowed and recorded*. Every action that any of those layers initiate passes through the AGS spine before it can change anything in the world.
 
-# The 10 principles
+The catalog now spans eight specs. Two private/forthcoming siblings round it out: **GDS (Grounded Data Spine)**, a canonical semantic model (text-to-metric) plus data-level entitlements; and **ARS (Agent Registry Spine)**, the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against. See the [Catalog](#catalog) section for the full eight-spec listing.
+
+AGS composes directly with DCS, the durable-state sibling. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions. Bad governance is an AGS failure; bad continuity is a DCS failure.
+
+# The 12 principles
 
 | # | Principle | The shift |
 |---|---|---|
@@ -117,23 +126,28 @@ PDS, ACS, ESF, CRI describe *how data and coordination flow through* an agent sy
 | 08 | **Shadow agent discovery** | Unregistered agents are a real production risk. The spine includes active discovery for processes, configs, and repos. |
 | 09 | **Trust scoring for plugin marketplaces** | Composite agent-trust score at the marketplace level. Different from CRI's customer-decision-level scoring. This is agent-level reputation. |
 | 10 | **Governance-aware training** | If you control post-training, the model is trained with violation penalties (RL-style). Agents that learn to respect the policy substrate are cheaper to govern at runtime. |
+| 11 | **Cost and consumption governance** | Token consumption, spend, and data-flow volume are a first-class governance surface alongside policy, identity, and audit. Per-agent token budgets with hard ceilings, spend attributed to agent identity, cost-aware model routing, and runaway-loop alerting. |
+| 12 | **Human-in-the-loop approval gates** | Deterministic policy can require human approval or escalation for an action class. The governed bridge between autonomous action and human judgment, sitting alongside allow and deny as a first-class decision. |
 
 Full discussion of each principle, with problems, patterns, and implementation notes, lives in [SPEC.md](SPEC.md).
 
-# The five-failure attribution extended to six
+# The failure attribution dictionary, now nine-way
 
-The four-spec catalog (PDS / ACS / ESF / CRI) produces the **five-way failure attribution dictionary**: PDS-data / ESF-data / ACS-planner / ACS-evaluator / CRI-scoring. AGS extends it to **six**:
+As the catalog has grown to eight specs, the failure-attribution dictionary has grown with it. AGS owns the **bad governance** surface. The full dictionary is now **nine-way**:
 
 | Attribution | Owned by | "Failure looked like..." |
 |---|---|---|
-| Bad customer data | PDS | Wrong supplier ID, stale internal cache, missing record |
+| Bad customer / tool data | PDS | Wrong supplier ID, stale internal cache, missing record |
 | Bad world data | ESF | Expired signal, mis-tagged advisory, broken adapter |
 | Bad reasoning | ACS Planner | Plan unsupported by signals |
 | Bad evaluation | ACS Evaluator | Rubber-stamped contract violation |
 | Bad scoring | CRI | Confident score on insufficient inputs |
 | **Bad governance** | **AGS** | **Policy gap (action wasn't denied because no rule covered it), identity ambiguity (we know an agent did it but not which), audit gap (no record exists), or policy drift (deployed policy differs from approved policy)** |
+| Bad continuity | DCS | State or memory lost, stale, or mis-scoped across sessions and time |
+| Bad grounding | GDS | Metric resolved to the wrong semantic definition, or an entitlement boundary leaked |
+| Bad or missing registry | ARS | An agentic asset was never inventoried, so discovery could not surface it and governance could not enforce against it |
 
-This six-attribution dictionary is the meta-architectural contribution of the full SaaSquach AI Labs catalog. Build, measure, and own each surface separately.
+This nine-attribution dictionary is the meta-architectural contribution of the full SaaSquach AI Labs catalog. Build, measure, and own each surface separately.
 
 # Industry context: convergence on the same pattern
 
@@ -151,9 +165,35 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 **W3C Decentralized Identifiers (DIDs) v1.0.** W3C Recommendation: *"DIDs are designed so that they may be decoupled from centralized registries, identity providers, and certificate authorities."* [Source](https://www.w3.org/TR/did-core/)
 
+**OpenFGA (CNCF), a Zanzibar-style ReBAC alternative to OPA/Cedar.** CNCF-graduated relationship-based authorization engine implementing Google's Zanzibar paper. Adds a ReBAC architectural variant to AGS principle #1's existing OPA + Cedar (ABAC) citations: ReBAC maps more naturally to agent-acting-on-behalf-of-user delegation chains than attribute-based policy. [Source](https://github.com/openfga/openfga)
+
+**Cerbos, a stateless ABAC PDP variant.** Stateless, language-agnostic policy decision point with first-class principal/resource/action model. A PDP-as-sidecar architectural variant for AGS principle #1 alongside OPA (stateful PDP) and AWS Cedar (in-process). [Source](https://github.com/cerbos/cerbos)
+
 ## Productized governance kernels (proof that the pattern is shippable)
 
 **Microsoft, Agent Governance Toolkit.** Microsoft's MIT-licensed multi-language governance kernel for autonomous AI agents. Covers OWASP Agentic Top 10 10/10. Productizes deterministic policy enforcement, SPIFFE/DID/mTLS identity, tamper-evident audit: *"Actions the AGT kernel denies are not 'unlikely.' They are structurally impossible."* Microsoft anchors the empirical case in JailbreakBench and concludes that prompt-layer defenses leak double-digit residual ASR. [Source](https://github.com/microsoft/agent-governance-toolkit)
+
+**MuleSoft Agent Fabric (Salesforce).** Salesforce's enterprise agent control plane productizes deterministic agent governance: the Agent Governance component (via Omni Gateway) applies policy, identity, and audit to every agent action with MCP and Agent2Agent protocol support, and an AI Gateway adds token/cost/data-flow governance for third-party models. A major-vendor instance of AGS at the gateway layer. [Source](https://www.mulesoft.com/ai/agent-fabric)
+
+**UiPath AI Trust Layer + Automation Ops.** Centralized control, security, and observability for UiPath-managed and third-party LLM usage, plus program and agent governance policies, identity, and audit, with human-in-the-loop approvals via Action Center. A major-vendor instance of deterministic agent governance with first-class LLM-usage control. [Source](https://docs.uipath.com/automation-cloud/automation-cloud/latest/admin-guide/about-ai-trust-layer)
+
+**Composio, productized identity-per-tool.** Commercial tool platform with per-toolkit auth and sandboxed workbench. Productizes AGS principle #2 (identity per agent) and #5 (privilege rings) at the tool-platform layer: citable as the commercial example of identity-bound tool access that AGS prescribes at the protocol layer. [Source](https://github.com/ComposioHQ/composio)
+
+## Sandbox and execution substrate (the resource-boundary building blocks)
+
+**e2b, an OSS Firecracker-microVM sandbox for agent code.** Open-source execution runtime purpose-built for AI-agent-generated code, providing sub-second sandboxed environments with mTLS-identity hooks. The canonical OSS productization of AGS principle #5 (privilege rings): where Microsoft AGT supplies the four-ring reference architecture, e2b supplies the OSS execution substrate. [Source](https://github.com/e2b-dev/e2b)
+
+**Daytona, a persistent-state sandbox sibling to e2b.** Elastic, secure infrastructure for AI-generated code with sub-second sandbox starts and persistent dev-environment state. The "dev-environment-grade" four-ring sandbox option for AGS principle #5 when agent workloads outlive a single execution. [Source](https://github.com/daytonaio/daytona)
+
+**Anthropic, self-hosted sandboxes cookbook.** Per-session isolated sandboxes (Docker / Cloudflare / Modal / Daytona / Vercel variants) with environment-key credential isolation so no org API key reaches the runner. The sandbox-execution substrate for AGS principle #5 (resource boundaries). [Source](https://github.com/anthropics/claude-cookbooks/tree/main/managed_agents/self_hosted_sandboxes)
+
+## Tool-surface and audit substrate (what AGS gates and what feeds its audit)
+
+**modelcontextprotocol/servers, the protocol surface AGS gates.** The reference catalog of MCP servers; AGS principle #1 (deterministic policy at the tool boundary) operates on the protocol MCP defines. AGS-compliant deployments enforce policy on this registry's surface. [Source](https://github.com/modelcontextprotocol/servers)
+
+**Langfuse, an OSS trace fabric feeding AGS audit.** OTel-native LLM/agent observability with trace storage, eval, and prompt management. AGS principle #3 (tamper-evident audit) consumes Langfuse-grade trace data as upstream input; Langfuse is the OSS substrate for the audit-log signal layer. [Source](https://github.com/langfuse/langfuse)
+
+**Pydantic Logfire, a typed audit substrate.** Pydantic-validated OTel observability; the Pydantic-typed trace payload is a clean OSS implementation of the typed-audit-record contract AGS principle #3 specifies. [Source](https://github.com/pydantic/logfire)
 
 ## Empirical case for deterministic enforcement (why prompt-level is insufficient)
 
@@ -163,6 +203,18 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 **Microsoft AI Red Team (Jan 2025).** After red-teaming 100 generative AI products: *"AI red teaming is a continuous process that should adapt to the rapidly evolving risk landscape."* Model-layer defenses are probabilistic by construction. [Source](https://www.microsoft.com/en-us/security/blog/2025/01/13/3-takeaways-from-red-teaming-100-generative-ai-products/)
 
+**Promptfoo, the production red-teaming counterpart to academic AGS citations.** Used by OpenAI and Anthropic for prompt/agent eval, red-teaming, and vulnerability scanning. Complements AGS's academic empirical citations (JailbreakBench, Andriushchenko ICLR 2025) with the production-deployed eval and red-teaming framework that frontier labs actually use. [Source](https://github.com/promptfoo/promptfoo)
+
+**Inspect (UK AI Security Institute).** Sovereign-grade LLM eval framework: the framework UK AISI and US AISI use for frontier-model assessments. Complements AGS's academic empirical citations (JailbreakBench, Andriushchenko ICLR 2025) with sovereign-government-agency-grade institutional credibility. [Source](https://github.com/UKGovernmentBEIS/inspect_ai)
+
+## Buyer-facing and practitioner convergence (the pattern stated by others)
+
+**Anthropic, "Zero Trust for AI Agents" eBook (2026).** Anthropic's buyer-facing zero-trust framework for AI agents is, structurally, AGS articulated for the enterprise buyer. Its core design test, *"does this make the attack impossible, or just tedious?"*, is AGS's "structurally impossible, not unlikely." It lays out a three-tier maturity model (Foundation / Enterprise / Advanced) across agent identity and auth, service auth, access control (RBAC deny-by-default through ABAC to continuous authorization), privilege scoping (static through dynamic to just-in-time), resource boundaries (identity isolation through sandboxed-per-agent to hardware/confidential-compute/microVM), observability and audit, behavioral monitoring, automated response, input validation, integrity and recovery, and AI governance, with an eight-phase agent implementation workflow. The strongest single AGS convergence citation available. [Source](https://www.anthropic.com/)
+
+**OpenAI Codex harness, mechanical invariant enforcement.** In a roughly 1M-line agent-generated codebase, architectural invariants (dependency directions, layer boundaries) are enforced by custom linters and structural tests with agent-readable remediation messages, not human review. AGS principle #1 (deterministic policy enforcement) rendered at the code-architecture layer: the constraint is mechanical, immediate, and at the point of violation. [Source](https://openai.com/index/harness-engineering/)
+
+**Multi-agent workflows field guide (Av1d, 2026), Governance Layer.** A practitioner synthesis whose governance module independently codifies AGS: per-agent permission scoping (read-only vs path-scoped write), human-in-the-loop gates for irreversible actions, agent-ID-tagged replayable audit trails, and blast-radius limits, framed as *"the governance layer is what separates a demo from a production system."* Adds field-named failure modes (silent substitution, scope creep) and a deterministic error-handling rule (*"never substitute placeholder data; report and halt"*) as concrete instances of AGS deterministic enforcement. [Source: @Av1dlive, How to Build Multi-Agent Workflows]
+
 ## OWASP risk taxonomy
 
 **OWASP LLM06:2025, Excessive Agency.** The canonical OWASP risk taxonomy entry for agent action-space governance: *"An LLM-based system is often granted a degree of agency by its developer, the ability to call functions or interface with other systems."* [Source](https://genai.owasp.org/llmrisk/llm062025-excessive-agency/) · Companion: [OWASP Agentic AI Threats and Mitigations](https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/) (Feb 2025).
@@ -171,14 +223,14 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 The sources above document INDIVIDUAL implementations and isolated primitives. AGS contributes:
 
-1. A unified set of **10 principles** mapped to four documented failure modes
+1. A unified set of **12 principles** mapped to documented failure modes
 2. **Target SLAs** for production governance readiness
 3. An **8-step build sequence** from skeleton to first reference deployment
 4. **Anti-patterns** to avoid
 5. A **portable, citable specification** under CC BY 4.0: adopt, adapt, build commercial products on top, with attribution
-6. **Explicit composition with PDS, ACS, ESF, and CRI**: the six-way failure attribution dictionary the five-spec catalog enables
+6. **Explicit composition with PDS, ACS, ESF, CRI, and DCS**: the nine-way failure attribution dictionary the eight-spec catalog enables
 
-If your team is independently converging on this pattern (as Microsoft, OPA, Cedar, SPIFFE, Permit.io and others already have), AGS gives you a vocabulary, a checklist, and a published artifact you can hand to your regulators / auditors / customers.
+If your team is independently converging on this pattern (as Microsoft, Anthropic, MuleSoft, UiPath, OPA, Cedar, SPIFFE, Permit.io and others already have), AGS gives you a vocabulary, a checklist, and a published artifact you can hand to your regulators / auditors / customers.
 
 # What good looks like (target SLAs)
 
@@ -225,7 +277,7 @@ See [SPEC.md](SPEC.md#5-build-sequence) for details.
 - Not a library you install. It's an architectural pattern with reference SLAs and examples.
 - Not a replacement for any specific governance product (OPA, Cedar, Permit.io, AGT). The pattern is what they all implement; AGS describes the pattern.
 - Not a substitute for red-teaming. Even with AGS, you red-team continuously. AGS narrows the attack surface from "prompt-layer ASR" (~100% on frontier models) to "structural ASR" (the policy + identity surface), which is orders of magnitude smaller.
-- Not a substitute for PDS / ACS / ESF / CRI. AGS is the protocol-layer substrate that governs whatever those four describe.
+- Not a substitute for PDS / ACS / ESF / CRI / DCS. AGS is the protocol-layer substrate that governs whatever those describe.
 
 # Use it with Claude (or any AI coding agent)
 
@@ -264,15 +316,18 @@ Issues, examples, implementation reports, and policy patterns welcome. See [CONT
 
 # Catalog
 
-AGS is the fifth specification in the SaaSquach AI Labs architectural catalog:
+AGS is the fifth specification in the SaaSquach AI Labs architectural catalog, which now spans eight specs:
 
-- **[PDS: Progressive Discovery Spine](https://github.com/drewmattie-code/Progressive-Discovery-Spine)**, single-agent tool discipline
+- **[PDS: Progressive Discovery Spine](https://github.com/drewmattie-code/Progressive-Discovery-Spine)**, single-agent tool discovery
 - **[ACS: Adversarial Coordination Spine](https://github.com/drewmattie-code/Adversarial-Coordination-Spine)**, multi-agent coordination
 - **[ESF: External Signal Fabric](https://github.com/drewmattie-code/External-Signal-Fabric)**, external-world signal substrate
-- **[CRI: Composite Risk Index](https://github.com/drewmattie-code/Composite-Risk-Index)**, composite scoring *(private)*
-- **AGS: Agent Governance Spine** *(this spec)*, protocol-layer governance
+- **[CRI: Composite Risk Index](https://github.com/drewmattie-code/Composite-Risk-Index)**, composite risk scoring *(private)*
+- **AGS: Agent Governance Spine** *(this spec)*, deterministic governance, identity, and audit
+- **[DCS: Durable Context Spine](https://github.com/drewmattie-code/Durable-Context-Spine)**, durable state and memory across sessions and time
+- **GDS: Grounded Data Spine** *(private)*, a canonical semantic model (text-to-metric) plus data-level entitlements
+- **ARS: Agent Registry Spine** *(private)*, the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against
 
-Together they form the six-way failure attribution dictionary (bad customer data / bad world data / bad reasoning / bad evaluation / bad scoring / bad governance) documented above. Each spec plants a flag at a different layer of the agent-architecture stack.
+Together they form the nine-way failure attribution dictionary (bad customer/tool data / bad world data / bad reasoning / bad evaluation / bad scoring / bad governance / bad continuity / bad grounding / bad or missing registry) documented above. Each spec plants a flag at a different layer of the agent-architecture stack.
 
 # Author
 

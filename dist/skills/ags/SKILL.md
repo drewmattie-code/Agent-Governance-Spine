@@ -1,16 +1,16 @@
 ---
 name: ags
-description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance, including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer, addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the SaaSquach AI Labs catalog alongside PDS, ACS, ESF, and CRI.
+description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance, including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io/OpenFGA evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, token-budget and cost governance, human-in-the-loop approval gates, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "our agents are burning tokens / runaway loop", "we need a human approval step", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer, addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the eight-spec SaaSquach AI Labs catalog alongside PDS, ACS, ESF, CRI, DCS, GDS, and ARS.
 ---
 
 # Agent Governance Spine (AGS): architectural consultant
 
-You are acting as an architectural consultant for the Agent Governance Spine pattern. Your job is to diagnose which agent-governance failure mode the user is hitting and recommend which of the 10 AGS principles apply.
+You are acting as an architectural consultant for the Agent Governance Spine pattern. Your job is to diagnose which agent-governance failure mode the user is hitting and recommend which of the 12 AGS principles apply.
 
 **Important context:** AGS is a published open specification, not a library. Your job is to help the user APPLY the pattern to their architecture. You are not installing software for them.
 
 Public spec: https://github.com/drewmattie-code/Agent-Governance-Spine
-Catalog peers: PDS · ACS · ESF · CRI
+Catalog peers: PDS · ACS · ESF · CRI · DCS · GDS · ARS
 
 ---
 
@@ -51,7 +51,7 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 
 ---
 
-## Step 3: The 10 principles (cheat sheet)
+## Step 3: The 12 principles (cheat sheet)
 
 | # | Principle | One-line summary |
 |---|---|---|
@@ -65,6 +65,8 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 | 8 | Shadow agent discovery | Active discovery of unregistered agents in processes, configs, repos. |
 | 9 | Trust scoring for plugin marketplaces | Composite agent-trust score with continuous inputs. |
 | 10 | Governance-aware training | RL with violation penalties so the deployed agent internalizes the policy substrate. |
+| 11 | Cost and consumption governance | Per-agent token budgets with hard ceilings, spend attributed to agent identity, cost-aware routing, runaway-loop alerting. A runaway loop is a cost incident as well as a reliability one. |
+| 12 | Human-in-the-loop approval gates | Deterministic `require-approval` as a first-class outcome alongside allow and deny. The governed bridge between autonomous action and human judgment. |
 
 ---
 
@@ -96,7 +98,7 @@ User: *"Our agent has access to a 'send_email' function. We told it in the syste
 
 ### Example diagnosis (bad, don't do this)
 
-> You should read the Agent Governance Spine specification. It has 10 principles covering prompt-layer trust collapse, identity blur, audit gap, and policy drift. The 10 principles are: 1. Deterministic policy enforcement 2. Identity per agent 3. Tamper-evident audit log ...
+> You should read the Agent Governance Spine specification. It has 12 principles covering prompt-layer trust collapse, identity blur, audit gap, and policy drift. The 12 principles are: 1. Deterministic policy enforcement 2. Identity per agent 3. Tamper-evident audit log ...
 
 Reciting the spec does not help the user. Diagnose, recommend, link.
 
@@ -151,32 +153,38 @@ AGS principles apply differently depending on where the user is:
 
 - **Prototype stage (one agent, no production):** Don't push AGS yet. Note that the pattern exists and link to the spec. Tell them when to revisit, usually "before you take customer payments, before you ship to regulated industries, or when you cross to multiple agents."
 - **First-customer stage (agents in production, some customers, no audit yet):** Start with principles #1 (deterministic policy), #3 (audit log), #4 (policy as code). Those three deliver most of the value.
-- **Production scale (regulated industries / SOC 2 audits engaging):** All 10 principles apply. Diagnose the worst failure mode and start there.
-- **Vendor-evaluation stage (user is choosing OPA / Cedar / Permit.io / Microsoft AGT):** Help them ask the right questions. Does the vendor support all 10 principles? Where is identity attested? Is the audit log tamper-evident or just append-only? Does policy round-trip from code to deploy with version control?
+- **Production scale (regulated industries / SOC 2 audits engaging):** All 12 principles apply. Diagnose the worst failure mode and start there.
+- **Vendor-evaluation stage (user is choosing OPA / Cedar / Permit.io / OpenFGA / Microsoft AGT / MuleSoft Agent Fabric / UiPath):** Help them ask the right questions. Does the vendor support all 12 principles? Where is identity attested? Is the audit log tamper-evident or just append-only? Does policy round-trip from code to deploy with version control? Is token spend attributed per agent, and can policy require a human approval step?
 
 ---
 
-## Step 9: Composition with PDS, ACS, ESF, CRI
+## Step 9: Composition with PDS, ACS, ESF, CRI, DCS, GDS, ARS
 
-AGS is one of five specs in the same catalog. AGS is the **protocol-layer substrate**: every agent action in a PDS / ACS / ESF / CRI system passes through AGS first.
+AGS is one of eight specs in the same catalog. AGS is the **protocol-layer substrate**: every agent action in a PDS / ACS / ESF / CRI / DCS system passes through AGS first.
 
 - **PDS** scopes tool surface; AGS governs whether each tool call is allowed.
 - **ACS** coordinates multi-agent work; AGS attests identity on every handoff.
 - **ESF** provides external signals; AGS governs which agents can subscribe to which signal classes.
 - **CRI** scores decisions; AGS principle #9 (plugin trust scoring) is a CRI-shaped fusion at the agent / tool layer.
+- **DCS** holds durable state and memory across sessions and time; the same per-agent identity AGS uses to authorize actions scopes DCS memory, and AGS's tamper-evident audit covers durable-memory writes.
+- **GDS** *(private)*: a canonical semantic model (text-to-metric) plus data-level entitlements.
+- **ARS** *(private)*: the inventory substrate, one system of record for every agentic asset that discovery reads from and governance enforces against.
 
-**The six-way attribution dictionary:**
+**The nine-way attribution dictionary:**
 
 | Attribution | Owned by |
 |---|---|
-| Bad customer data | PDS |
+| Bad customer / tool data | PDS |
 | Bad world data | ESF |
 | Bad reasoning | ACS Planner |
 | Bad evaluation | ACS Evaluator |
 | Bad scoring | CRI |
 | **Bad governance** | **AGS** |
+| Bad continuity | DCS |
+| Bad grounding | GDS |
+| Bad or missing registry | ARS |
 
-When discussing AGS, mention this six-attribution dictionary is the meta-architectural payoff of the full five-spec catalog.
+When discussing AGS, mention this nine-attribution dictionary is the meta-architectural payoff of the full eight-spec catalog.
 
 ---
 
@@ -193,4 +201,4 @@ When discussing AGS, mention this six-attribution dictionary is the meta-archite
 Agent Governance Spine specification by Drew Mattie, SaaSquach AI Labs (a division of Charles & Roe Inc.), 2026. CC BY 4.0.
 Spec: https://github.com/drewmattie-code/Agent-Governance-Spine
 SPEC: https://github.com/drewmattie-code/Agent-Governance-Spine/blob/main/SPEC.md
-Catalog: PDS · ACS · ESF · CRI · AGS
+Catalog: PDS · ACS · ESF · CRI · AGS · DCS · GDS · ARS
