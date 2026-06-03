@@ -339,6 +339,8 @@ AGS is compatible with, and built on top of, these standards:
 - **Microsoft Agent Governance Toolkit (AGT)**: the most mature productized implementation of the core principles
 - **Anthropic "Zero Trust for AI Agents"**: buyer-facing zero-trust framework structurally equivalent to AGS; three-tier maturity model across identity, access, privilege scoping, resource boundaries, audit, and governance
 - **MuleSoft Agent Fabric (Salesforce) / UiPath AI Trust Layer + Automation Ops**: major-vendor agent control planes productizing deterministic governance, identity, audit, LLM-usage / cost control (principle #11), and human-in-the-loop approval (principle #12, via Action Center)
+- **AWS Bedrock AgentCore Policy + Identity**: AgentCore Policy compiles natural-language rules to Cedar, validates them against the tool schema with automated reasoning, and enforces them at the AgentCore Gateway by intercepting every tool call before it runs, outside the LLM loop; with AgentCore Identity (OAuth, IAM, custom claims) and Bedrock Guardrails, the most complete major-cloud productization of deterministic governance outside the model (Policy GA 2026-03-03)
+- **Palantir Foundry + AIP**: enforces access scopes "for both humans and agents" through mandatory and discretionary controls (Markings, Organizations, granular policies) connected to automated lineage and auditing, with purpose-based access recording the rationale for each grant; a major-vendor instance of deterministic, identity-scoped, auditable agent governance, including the rationale-recorded audit pattern
 
 AGS is also compatible with the companion specifications in the catalog:
 
@@ -399,6 +401,8 @@ Within AGS itself, bad governance decomposes further: policy-coverage gap, ident
 - Anthropic, *Zero Trust for AI Agents* (2026): [anthropic.com](https://www.anthropic.com/)
 - MuleSoft Agent Fabric (Salesforce): [mulesoft.com/ai/agent-fabric](https://www.mulesoft.com/ai/agent-fabric)
 - UiPath AI Trust Layer: [docs.uipath.com](https://docs.uipath.com/automation-cloud/automation-cloud/latest/admin-guide/about-ai-trust-layer)
+- AWS Bedrock AgentCore Policy: [docs.aws.amazon.com](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/policy.html)
+- Palantir Foundry security overview: [palantir.com/docs/foundry/security/overview](https://www.palantir.com/docs/foundry/security/overview)
 
 ### Empirical case for deterministic enforcement
 - Chao et al., *JailbreakBench* (NeurIPS 2024): [arXiv:2404.01318](https://arxiv.org/abs/2404.01318)
