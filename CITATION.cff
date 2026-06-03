@@ -25,11 +25,14 @@ abstract: >
   where attribution is impossible), audit gap (no tamper-evident record
   for SOC 2 / regulator review), and policy drift (policy living in
   prose and tribal knowledge instead of versioned lintable code), and
-  in v1.1 extends to cost and consumption governance and human-in-the-loop
-  approval gates. The pattern is defined as twelve principles plus
-  reference SLAs and a numbered build sequence. It is the fifth
-  specification in the eight-spec SaaSquach AI Labs catalog alongside
-  PDS, ACS, ESF, CRI, DCS, GDS, and ARS.
+  in v1.1 extends to cost and consumption governance, human-in-the-loop
+  approval gates, natural-language-front formal-language-back policy
+  authoring with an automated-reasoning verification pass on the compiled
+  artifact, deterministic enforcement co-located with the tool-mediation
+  chokepoint, and purpose-based access control. The pattern is defined as
+  thirteen principles plus reference SLAs and a numbered build sequence.
+  It is the fifth specification in the eight-spec SaaSquach AI Labs catalog
+  alongside PDS, ACS, ESF, CRI, DCS, GDS, and ARS.
 keywords:
   - agent-governance
   - policy-as-code

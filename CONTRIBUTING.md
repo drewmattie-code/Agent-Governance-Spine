@@ -11,7 +11,7 @@ If you have built a governance system that implements AGS (or pieces of it) in p
 Template: open an issue with title `[Implementation] <one-line summary>` and include:
 
 - Stack (policy engine, identity provider, audit log, agent framework)
-- Which of the 10 principles you implemented and which you skipped, and why
+- Which of the 13 principles you implemented and which you skipped, and why
 - What broke and how you fixed it
 - What SLAs you measured against the targets in [SPEC.md](SPEC.md#4-slas-and-success-metrics)
 - Particularly valued: incident reports, which of the four named failure modes did you hit in real production, and what was the fix?

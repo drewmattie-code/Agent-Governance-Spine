@@ -64,7 +64,7 @@ Denied actions are not "unlikely." They are **structurally impossible** because 
 
 ---
 
-## 3. The 12 principles
+## 3. The 13 principles
 
 ### 3.1: Deterministic policy enforcement, not prompt-level safety
 
@@ -72,7 +72,9 @@ Denied actions are not "unlikely." They are **structurally impossible** because 
 
 **Pattern.** Every action (every tool call, every message, every delegation) passes through a deterministic policy gate written in code, BEFORE the model's intent reaches the wire. The gate returns one of three decisions: allow, deny, escalate-for-approval. There is no fourth option of "the model said no."
 
-**Implementation.** A policy evaluator wraps every action. The simplest shape:
+The enforcement point is the tool-mediation chokepoint, the same place tools are discovered and handed to the agent. The layer that surfaces a tool to an agent (the PDS gateway) is the natural and only place to enforce tool-call policy deterministically, because it sits on the single path every tool call must cross. One chokepoint does both jobs: discovery and governance. Scattering enforcement across individual agents, or asking each agent to self-police, reopens the prompt-layer hole this principle closes. AGS and PDS compose here: PDS describes the discovery discipline at that chokepoint, AGS describes the enforcement discipline at the same chokepoint. AWS Bedrock AgentCore demonstrates exactly this, enforcing AgentCore Policy at the AgentCore Gateway, the same gateway that turns APIs and MCP servers into agent-callable tools, intercepting every tool call before it runs and outside the LLM loop.
+
+**Implementation.** A policy evaluator wraps every action, co-located at the tool-mediation gateway. The simplest shape:
 
 ```python
 from agentmesh.governance import govern
@@ -115,15 +117,17 @@ The audit record includes: timestamp, agent identity, requested action, full con
 
 ---
 
-### 3.4: Policy as code, not as prose
+### 3.4: Policy as code, authored and validated, not as prose
 
-**Problem.** Policy that lives in system prompts, in Notion documents, or in tribal knowledge has no version control, no linting, no testing, no rollback. The actual behavior of the deployed system silently diverges from the approved policy.
+**Problem.** Policy that lives in system prompts, in Notion documents, or in tribal knowledge has no version control, no linting, no testing, no rollback. The actual behavior of the deployed system silently diverges from the approved policy. A second, subtler problem sits on top of this: even when policy IS code, hand-writing a formal policy language is slow and error-prone, and a policy that compiles cleanly can still be over-permissive, over-restrictive, or unsatisfiable against the actual tool schema. Policy authorship and policy validation are governance surfaces in their own right, not just policy enforcement.
 
 **Pattern.** Policy is code. YAML, OPA Rego, Cedar. Pick one, but the policy file is versioned in git, lintable (`agt lint-policy policies/` or equivalent), testable (every rule has a test case), and reviewable (PR-gated). The policy engine loads the policy from the code artifact, not from a prompt.
 
-**Implementation.** A `policies/` directory in the repo. CI gates: lint must pass, every rule must have at least one test, every PR touching policy requires reviewer approval from a designated owner. Production loads from a pinned policy version; emergency policy changes are themselves changes-as-code (no console hotfix).
+Authoring can be natural-language-front, formal-language-back. An author states the rule in natural language, the system compiles it to a formal policy language (Cedar or equivalent), and the compiled artifact is machine-verified before it is ever enforced. The verification pass uses automated reasoning over the compiled policy and the tool schema to catch over-permissive, over-restrictive, and unsatisfiable rules at author time, not at incident time. The natural-language statement is the human-reviewable intent, the compiled formal artifact is the thing that runs, and the verification result is the gate between the two. AWS Bedrock AgentCore Policy demonstrates this exact loop: rules authored in natural language, compiled to Cedar, validated against the tool schema with automated reasoning, then enforced deterministically. The discipline is the same regardless of vendor: the artifact that runs is formal and verified, the artifact a human reads and approves can be natural language.
 
-**Anti-pattern.** Policy in the system prompt. Policy in a UI configurator with no export-to-git workflow. Policy in a Notion doc that no one updates.
+**Implementation.** A `policies/` directory in the repo. CI gates: lint must pass, every rule must have at least one test, every PR touching policy requires reviewer approval from a designated owner. Where a natural-language-front toolchain is used, CI also gates on the compile step and the automated-reasoning verification pass: a policy that does not compile, or that the verifier flags as over-permissive, over-restrictive, or unsatisfiable, never reaches the pinned production version. Both the natural-language source and the compiled formal artifact are committed, so a reviewer reads intent and the engine runs the verified artifact. Production loads from a pinned policy version; emergency policy changes are themselves changes-as-code (no console hotfix).
+
+**Anti-pattern.** Policy in the system prompt. Policy in a UI configurator with no export-to-git workflow. Policy in a Notion doc that no one updates. Compiling natural language to a formal policy and enforcing it without a verification pass on the compiled artifact, so an over-permissive or unsatisfiable rule ships unnoticed.
 
 ---
 
@@ -259,6 +263,20 @@ The gate is policy-as-code (principle #4): the set of action classes requiring a
 
 ---
 
+### 3.13: Purpose-based access control
+
+**Problem.** Identity-based, role-based, attribute-based, and relationship-based access all answer *who* may do *what*. None of them record *why*. An agent acting on behalf of a user may be entitled to a tool or a dataset for one legitimate purpose and have no business touching it for another, yet a grant keyed only to identity and role cannot distinguish the two. When an auditor asks "why was this agent allowed to read this," the honest answer under identity-only access control is "because its role had the permission," which is not a justification, it is a tautology. The rationale for the grant is unrecorded, so the audit log can show *who* had access to *what* but never *why*.
+
+**Pattern.** Access can be granted to a stated purpose, not only to a principal. A purpose is a declared, named reason for access (for example "supplier-risk-review" or "quarterly-close-reconciliation"), with the rationale recorded at grant and approval time. The agent or user requests access against a purpose, and the policy engine evaluates the requesting identity against that purpose: is this identity entitled to act for this purpose, and is the action it is taking consistent with the purpose it claimed. The purpose, the recorded rationale, and the identity it was evaluated against all land in the tamper-evident audit log (principle #3), so audit answers "why was this allowed," not just "who can see what." Purpose-based access is an additional dimension layered on top of identity (principle #2), not a replacement for it: identity still establishes *who*, purpose adds *why*, and the decision is conditioned on both.
+
+This is the Palantir Foundry purpose-based-access pattern, where a user applies for access to a Purpose rather than to an individual dataset, the rationale is recorded at grant time, and access scopes are enforced for both humans and agents under automated lineage and auditing. The principle generalizes beyond any one platform: any access decision can be conditioned on, and audited against, a declared purpose.
+
+**Implementation.** A purpose is a first-class object in the policy model: it has a name, an owner, a recorded rationale, and a set of identities entitled to act for it. The policy engine takes the purpose as part of the decision context (action, principal, purpose, context, policy), and a grant is the tuple of identity plus purpose plus rationale, not identity alone. Purpose definitions and grants are policy-as-code (principle #4): versioned, lintable, testable, PR-reviewed, with the same compile-and-verify discipline as the rest of the policy. Every decision records the purpose claimed, the rationale on file for the grant, and the identity it was evaluated against, on the same tamper-evident audit path as every other decision.
+
+**Anti-pattern.** Access keyed to identity and role only, so the audit log can never answer "why." Purpose recorded as a free-text note the agent supplies at request time with no grant-time rationale to evaluate it against (the agent can claim any purpose). Purpose-based access that is not enforced for agents, only for humans, so the agent inherits a broad human grant with no purpose narrowing. Treating purpose as a label for reporting rather than a condition the policy engine actually evaluates.
+
+---
+
 ## 4. SLAs and success metrics
 
 | Metric | Target | Rationale |
@@ -279,6 +297,8 @@ The gate is policy-as-code (principle #4): the set of action classes requiring a
 | Runaway-loop / burn-rate anomaly detection | Alert before budget exhaustion | The invoice is too late. |
 | Approval-required action classes auto-executed | 0 | HITL action classes pause for human judgment, never auto-allow. |
 | Approval-gate timeout default | Deny | A pending approval that expires must not fall through to allow. |
+| Compiled policy artifacts deployed without a verification pass | 0 | A natural-language rule compiled to formal policy is automated-reasoning-verified against the tool schema before it can be pinned to production. |
+| Purpose-conditioned grants with no recorded rationale | 0 | Every purpose-based grant records why, so audit answers "why was this allowed," not just "who." |
 
 ---
 
@@ -315,6 +335,8 @@ AGS is built in the following sequence from skeleton to first reference deployme
 | Training agents to be compliant with users only | Runtime policy bears the full load; learning-at-runtime is friction | Governance-aware training where feasible (principle #10) |
 | Ungoverned token spend reconciled on the invoice | A retry-without-backoff loop is a cost incident no one bounded | Per-agent budgets with hard ceilings and burn-rate alerting (principle #11) |
 | Approval requirements encoded in the system prompt | Principle-#1 trust collapse wearing a different hat | Deterministic require-approval as a first-class policy outcome (principle #12) |
+| Compiling natural-language rules to formal policy and enforcing without a verification pass | An over-permissive or unsatisfiable rule ships unnoticed | Automated-reasoning verification of the compiled artifact against the tool schema before deploy (principle #4) |
+| Access keyed to identity and role only, with no recorded reason | Audit can answer "who" but never "why" | Purpose-based access: grant to a declared purpose with recorded rationale, evaluated against identity (principle #13) |
 
 ---
 
@@ -370,7 +392,7 @@ AGS owns the **bad governance** surface in the catalog's failure-attribution dic
 | Bad grounding | GDS | Metric resolved to the wrong semantic definition, or an entitlement boundary leaked |
 | Bad or missing registry | ARS | An agentic asset was never inventoried, so discovery could not surface it and governance could not enforce against it |
 
-Within AGS itself, bad governance decomposes further: policy-coverage gap, identity-attestation gap, audit-tamper failure, tool-supply-chain compromise, shadow-agent presence, unbounded consumption, and a missing approval gate. The nine-attribution model makes any catalog-grade system failure locatable to a single ownable layer.
+Within AGS itself, bad governance decomposes further: policy-coverage gap, identity-attestation gap, audit-tamper failure, tool-supply-chain compromise, shadow-agent presence, unbounded consumption, a missing approval gate, an unverified compiled-policy artifact, and a purpose-unrecorded access grant. The nine-attribution model makes any catalog-grade system failure locatable to a single ownable layer.
 
 ---
 
@@ -437,6 +459,7 @@ This specification follows semantic versioning. Breaking changes to the conceptu
 - **v0.1-draft**: initial draft (2026-05-26). Triggered by Microsoft Agent Governance Toolkit release. Internal review.
 - **v1.0**: first public release under CC BY 4.0 + MIT (2026-05-28).
 - **v1.1** (2026-06-02): added two principles, #11 (cost and consumption governance) and #12 (human-in-the-loop approval gates), bringing the count to twelve. Added convergence citations: Anthropic "Zero Trust for AI Agents", MuleSoft Agent Fabric, UiPath AI Trust Layer, OpenFGA, Cerbos, e2b, Daytona, Composio, MCP server registry, Langfuse, Pydantic Logfire, Promptfoo, Inspect (UK AISI), the OpenAI Codex harness, the Anthropic self-hosted sandboxes cookbook, and the Av1d multi-agent workflows field guide. Added the DCS composition cross-reference and updated the catalog to eight specs (adding DCS public, GDS and ARS private/forthcoming) and the failure-attribution dictionary to nine-way.
+- **v1.1** (2026-06-02, same-day consolidation): added principle #13 (purpose-based access control), bringing the count to thirteen, and enriched two existing principles from the AWS Bedrock AgentCore and Palantir Foundry AIP analyses. Principle #1 now names that deterministic enforcement is co-located with the tool-mediation chokepoint, the same point PDS uses for discovery (AgentCore Policy enforced at the AgentCore Gateway). Principle #4 now names natural-language-front, formal-language-back policy authoring with an automated-reasoning verification pass on the compiled artifact before deploy (AgentCore Policy compiles natural language to Cedar and verifies against the tool schema). Principle #13 is the Palantir Foundry purpose-based-access pattern: an entitlement granted to a declared purpose with recorded rationale, evaluated against the requesting identity and audited against the purpose. Added AgentCore Policy and Palantir purpose-based access to the convergence citations. Catalog stays eight specs; failure attribution stays nine-way.
 
 ---
 

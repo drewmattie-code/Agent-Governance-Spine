@@ -112,14 +112,14 @@ The catalog now spans eight specs. Two private/forthcoming siblings round it out
 
 AGS composes directly with DCS, the durable-state sibling. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions. Bad governance is an AGS failure; bad continuity is a DCS failure.
 
-# The 12 principles
+# The 13 principles
 
 | # | Principle | The shift |
 |---|---|---|
-| 01 | **Deterministic policy enforcement, not prompt-level safety** | Every action is denied or allowed in application code BEFORE the model's intent reaches the wire. Not "the model said no." Not "the system prompt warns against it." Structurally impossible to execute. |
+| 01 | **Deterministic policy enforcement at the tool-mediation chokepoint** | Every action is denied or allowed in application code BEFORE the model's intent reaches the wire. Not "the model said no." Not "the system prompt warns against it." Structurally impossible to execute. Enforced at the same chokepoint that discovers and hands tools to the agent (the PDS gateway), so discovery and governance share one point (AgentCore Policy at the AgentCore Gateway). |
 | 02 | **Identity per agent, not per session** | Every agent has a stable cryptographic identity (SPIFFE / DID / mTLS). "An agent did it" is never an acceptable answer. |
 | 03 | **Tamper-evident audit log** | Every decision (allow, deny, escalate) is recorded in an append-only, commitment-anchored audit log. SOC 2 / ISO 27001 / regulator-defensible. |
-| 04 | **Policy as code, not as prose** | YAML / OPA / Cedar / equivalent. Versioned, lintable, testable, reviewable. Never in the system prompt; never in tribal knowledge. |
+| 04 | **Policy as code, authored and validated, not as prose** | YAML / OPA / Cedar / equivalent. Versioned, lintable, testable, reviewable. Never in the system prompt; never in tribal knowledge. Authoring can be natural-language-front, formal-language-back: state the rule in natural language, compile it to a formal policy language, and machine-verify the compiled artifact (automated reasoning against the tool schema) before it is enforced (AgentCore Policy). |
 | 05 | **Privilege rings, not flat permissions** | Agent execution is sandboxed in tiered privilege rings. Low-trust agents cannot reach high-trust resources by accident or by design. |
 | 06 | **Kill switch + SLO monitoring + chaos testing** | Every deployed agent is monitored against an SLO and reachable by a human-operated kill switch. Chaos testing of the governance layer itself, not just the agents. |
 | 07 | **Tool poisoning detection + drift monitoring** | The tool supply chain is itself a threat surface. Hidden instructions, typosquatting, drift between authored manifest and runtime behavior all detected at the spine. |
@@ -128,6 +128,7 @@ AGS composes directly with DCS, the durable-state sibling. The same per-agent id
 | 10 | **Governance-aware training** | If you control post-training, the model is trained with violation penalties (RL-style). Agents that learn to respect the policy substrate are cheaper to govern at runtime. |
 | 11 | **Cost and consumption governance** | Token consumption, spend, and data-flow volume are a first-class governance surface alongside policy, identity, and audit. Per-agent token budgets with hard ceilings, spend attributed to agent identity, cost-aware model routing, and runaway-loop alerting. |
 | 12 | **Human-in-the-loop approval gates** | Deterministic policy can require human approval or escalation for an action class. The governed bridge between autonomous action and human judgment, sitting alongside allow and deny as a first-class decision. |
+| 13 | **Purpose-based access control** | Beyond identity, role, attribute, and relationship, an entitlement can be granted to a declared purpose, with the rationale recorded per grant and evaluated against the requesting identity. Audit answers "why was this allowed," not just "who" (Palantir Foundry purpose-based access). |
 
 Full discussion of each principle, with problems, patterns, and implementation notes, lives in [SPEC.md](SPEC.md).
 
@@ -227,7 +228,7 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 The sources above document INDIVIDUAL implementations and isolated primitives. AGS contributes:
 
-1. A unified set of **12 principles** mapped to documented failure modes
+1. A unified set of **13 principles** mapped to documented failure modes
 2. **Target SLAs** for production governance readiness
 3. An **8-step build sequence** from skeleton to first reference deployment
 4. **Anti-patterns** to avoid
@@ -293,7 +294,7 @@ curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Agent-Governance-Sp
   -o ~/.claude/skills/ags/SKILL.md
 ```
 
-After install, the skill auto-activates whenever you ask Claude about agent governance, policy enforcement, identity for agents, audit logs for AI systems, OWASP agentic risks, or any of the other triggering contexts. It diagnoses which of the four documented failure modes you're hitting and recommends which of the 10 principles to apply.
+After install, the skill auto-activates whenever you ask Claude about agent governance, policy enforcement, identity for agents, audit logs for AI systems, OWASP agentic risks, or any of the other triggering contexts. It diagnoses which of the four documented failure modes you're hitting and recommends which of the 13 principles to apply.
 
 # Examples
 

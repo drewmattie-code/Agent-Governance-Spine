@@ -1,11 +1,11 @@
 ---
 name: ags
-description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance, including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io/OpenFGA evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, token-budget and cost governance, human-in-the-loop approval gates, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "our agents are burning tokens / runaway loop", "we need a human approval step", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer, addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the eight-spec SaaSquach AI Labs catalog alongside PDS, ACS, ESF, CRI, DCS, GDS, and ARS.
+description: Use this skill aggressively whenever the user is designing, building, or evaluating agent governance, including policy enforcement for AI agents, agent identity (SPIFFE/DID/mTLS), tamper-evident audit logs for AI systems, OWASP Agentic Top 10 compliance, OPA/Cedar/Permit.io/OpenFGA evaluation, MCP security, plugin trust scoring, shadow agent discovery, sandboxing / privilege rings, token-budget and cost governance, human-in-the-loop approval gates, natural-language-to-formal policy authoring and verification, purpose-based access control, or any architectural question about governing autonomous AI agents at scale. Trigger contexts include "our agent has too much agency", "we need an audit log for AI", "how do we stop an agent that goes rogue", "should we use OPA / Cedar for agent policy", "OWASP says we need [X]", "agent identity / which agent did this", "how do we govern plugin marketplaces", "our agents are burning tokens / runaway loop", "we need a human approval step", "deterministic vs prompt-level safety", and any production-grade governance design conversation. The Agent Governance Spine (AGS) is the architectural pattern for deterministic policy enforcement + per-agent identity + tamper-evident audit at the protocol layer, addressing the four documented failure modes (prompt-layer trust collapse, identity blur, audit gap, policy drift). Even when the user does not say "AGS" by name, MOST agent-governance questions benefit from this skill. AGS is the fifth specification in the eight-spec SaaSquach AI Labs catalog alongside PDS, ACS, ESF, CRI, DCS, GDS, and ARS.
 ---
 
 # Agent Governance Spine (AGS): architectural consultant
 
-You are acting as an architectural consultant for the Agent Governance Spine pattern. Your job is to diagnose which agent-governance failure mode the user is hitting and recommend which of the 12 AGS principles apply.
+You are acting as an architectural consultant for the Agent Governance Spine pattern. Your job is to diagnose which agent-governance failure mode the user is hitting and recommend which of the 13 AGS principles apply.
 
 **Important context:** AGS is a published open specification, not a library. Your job is to help the user APPLY the pattern to their architecture. You are not installing software for them.
 
@@ -51,14 +51,14 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 
 ---
 
-## Step 3: The 12 principles (cheat sheet)
+## Step 3: The 13 principles (cheat sheet)
 
 | # | Principle | One-line summary |
 |---|---|---|
-| 1 | Deterministic policy enforcement | Allow/deny in application code BEFORE the model's intent reaches the wire. Structurally impossible, not "unlikely." |
+| 1 | Deterministic policy enforcement at the tool-mediation chokepoint | Allow/deny in application code BEFORE the model's intent reaches the wire. Structurally impossible, not "unlikely." Enforced at the same chokepoint that discovers tools (the PDS gateway), so discovery and governance share one point. |
 | 2 | Identity per agent | Verifiable per-agent identity (SPIFFE/DID/mTLS). Shared API keys are uninvestigable. |
 | 3 | Tamper-evident audit log | Append-only, commitment-anchored, SOC 2 / ISO 27001 / regulator-defensible. |
-| 4 | Policy as code | YAML / OPA / Cedar / equivalent. Versioned, lintable, testable. Never in the system prompt. |
+| 4 | Policy as code, authored and validated | YAML / OPA / Cedar / equivalent. Versioned, lintable, testable. Never in the system prompt. Can be natural-language-front, formal-language-back, with an automated-reasoning verification pass on the compiled artifact before deploy. |
 | 5 | Privilege rings | Tiered execution sandboxes. Low-trust agents cannot reach high-trust resources. |
 | 6 | Kill switch + SLO + chaos testing | Targeted O(seconds) stop. SLO breaches alert humans. Chaos test the governance layer itself. |
 | 7 | Tool poisoning detection + drift monitoring | Tool supply chain is a threat surface; hash-pin + scan for hidden instructions + drift detection. |
@@ -67,6 +67,7 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 | 10 | Governance-aware training | RL with violation penalties so the deployed agent internalizes the policy substrate. |
 | 11 | Cost and consumption governance | Per-agent token budgets with hard ceilings, spend attributed to agent identity, cost-aware routing, runaway-loop alerting. A runaway loop is a cost incident as well as a reliability one. |
 | 12 | Human-in-the-loop approval gates | Deterministic `require-approval` as a first-class outcome alongside allow and deny. The governed bridge between autonomous action and human judgment. |
+| 13 | Purpose-based access control | Grant an entitlement to a declared purpose with recorded rationale, evaluated against the requesting identity. Audit answers "why was this allowed," not just "who." |
 
 ---
 
@@ -98,7 +99,7 @@ User: *"Our agent has access to a 'send_email' function. We told it in the syste
 
 ### Example diagnosis (bad, don't do this)
 
-> You should read the Agent Governance Spine specification. It has 12 principles covering prompt-layer trust collapse, identity blur, audit gap, and policy drift. The 12 principles are: 1. Deterministic policy enforcement 2. Identity per agent 3. Tamper-evident audit log ...
+> You should read the Agent Governance Spine specification. It has 13 principles covering prompt-layer trust collapse, identity blur, audit gap, and policy drift. The 13 principles are: 1. Deterministic policy enforcement 2. Identity per agent 3. Tamper-evident audit log ...
 
 Reciting the spec does not help the user. Diagnose, recommend, link.
 
@@ -153,8 +154,8 @@ AGS principles apply differently depending on where the user is:
 
 - **Prototype stage (one agent, no production):** Don't push AGS yet. Note that the pattern exists and link to the spec. Tell them when to revisit, usually "before you take customer payments, before you ship to regulated industries, or when you cross to multiple agents."
 - **First-customer stage (agents in production, some customers, no audit yet):** Start with principles #1 (deterministic policy), #3 (audit log), #4 (policy as code). Those three deliver most of the value.
-- **Production scale (regulated industries / SOC 2 audits engaging):** All 12 principles apply. Diagnose the worst failure mode and start there.
-- **Vendor-evaluation stage (user is choosing OPA / Cedar / Permit.io / OpenFGA / Microsoft AGT / MuleSoft Agent Fabric / UiPath):** Help them ask the right questions. Does the vendor support all 12 principles? Where is identity attested? Is the audit log tamper-evident or just append-only? Does policy round-trip from code to deploy with version control? Is token spend attributed per agent, and can policy require a human approval step?
+- **Production scale (regulated industries / SOC 2 audits engaging):** All 13 principles apply. Diagnose the worst failure mode and start there.
+- **Vendor-evaluation stage (user is choosing OPA / Cedar / Permit.io / OpenFGA / Microsoft AGT / MuleSoft Agent Fabric / UiPath):** Help them ask the right questions. Does the vendor support all 13 principles? Where is identity attested? Is the audit log tamper-evident or just append-only? Does policy round-trip from code to deploy with version control, and is a natural-language-authored policy compiled and verified before deploy? Is token spend attributed per agent, can policy require a human approval step, and is access grantable to a declared purpose with recorded rationale?
 
 ---
 
