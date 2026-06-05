@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/drewmattie-code/Agent-Governance-Spine/schema/policy-decision.v1.json",
+  "title": "AGS Policy Decision (audited)",
+  "description": "The tamper-evident record of one governed action decision. Formalizes AGS principle #1 (the decision is deterministic and made outside the model, before the action runs) and #3 (tamper-evident, hash-chained audit). entry_hash = sha256(prev_hash + the canonical record without entry_hash), so any later edit breaks the chain.",
+  "type": "object",
+  "required": ["seq", "timestamp", "request", "effect", "matched_rule", "prev_hash", "entry_hash"],
+  "additionalProperties": false,
+  "properties": {
+    "seq": {"type": "integer"},
+    "timestamp": {"type": "string"},
+    "request": {
+      "type": "object",
+      "required": ["agent_id", "action", "resource"],
+      "additionalProperties": true,
+      "properties": {
+        "agent_id": {"type": "string", "description": "Verifiable per-agent identity (principle #2), not a shared key."},
+        "action": {"type": "string"},
+        "resource": {"type": "string"},
+        "ring": {"type": "integer"},
+        "params": {"type": "object"}
+      }
+    },
+    "effect": {"type": "string", "enum": ["allow", "deny"]},
+    "matched_rule": {"type": "string", "description": "Which rule decided this, or 'default-deny'."},
+    "reason": {"type": "string"},
+    "prev_hash": {"type": "string"},
+    "entry_hash": {"type": "string"}
+  }
+}

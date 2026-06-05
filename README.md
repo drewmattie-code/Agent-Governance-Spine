@@ -304,6 +304,9 @@ The [`examples/`](examples/) directory has concrete artifacts:
 - [`policy-yaml.example.md`](examples/policy-yaml.example.md): what a production-grade policy file looks like (allow/deny/require-approval rules with conditions)
 - [`audit-record.example.json`](examples/audit-record.example.json): what an AGS audit-log entry looks like, with commitment anchoring
 - [`privilege-rings.md`](examples/privilege-rings.md): four-ring sandboxing model worked through for a typical agent fleet
+- [`enforce.py`](examples/enforce.py): a runnable, dependency-free demo of deterministic governance. It runs action requests through a deny-by-default policy (the decision is a pure function, no model), denies external email structurally, writes a hash-chained tamper-evident audit log, and shows the chain detecting an after-the-fact edit. Run it with `python3 examples/enforce.py`.
+
+Formal contracts live in [`schema/`](schema/): [`policy-rule.v1.json`](schema/policy-rule.v1.json) (the deny-by-default rule format) and [`policy-decision.v1.json`](schema/policy-decision.v1.json) (the tamper-evident audited decision record).
 
 # Citing this work
 

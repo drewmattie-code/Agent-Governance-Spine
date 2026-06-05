@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/drewmattie-code/Agent-Governance-Spine/schema/policy-rule.v1.json",
+  "title": "AGS Policy Rule",
+  "description": "A single deterministic, deny-by-default policy rule evaluated at the tool boundary before any action runs. Formalizes AGS principle #1 (deterministic policy as code, not prompt-level safety). The policy is a list of these; the first matching allow grants, otherwise the action is denied.",
+  "type": "object",
+  "required": ["id", "effect", "action"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type": "string"},
+    "effect": {"type": "string", "enum": ["allow", "deny"]},
+    "agent": {"type": "string", "description": "Agent id this rule applies to, or '*' for any."},
+    "action": {"type": "string", "description": "Action name this rule applies to, or '*' for any."},
+    "resource": {"type": "string", "description": "Resource this rule applies to, or '*' for any."},
+    "ring_max": {"type": "integer", "description": "Highest privilege ring the rule grants to (principle #5, privilege rings)."},
+    "reason": {"type": "string"}
+  }
+}
