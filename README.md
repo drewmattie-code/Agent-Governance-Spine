@@ -286,7 +286,7 @@ See [SPEC.md](SPEC.md#5-build-sequence) for details.
 
 - Not a library you install. It's an architectural pattern with reference SLAs and examples.
 - Not a replacement for any specific governance product (OPA, Cedar, Permit.io, AGT). The pattern is what they all implement; AGS describes the pattern.
-- Not a substitute for red-teaming. Even with AGS, you red-team continuously. AGS narrows the attack surface from "prompt-layer ASR" (~100% on frontier models) to "structural ASR" (the policy + identity surface), which is orders of magnitude smaller.
+- Not a substitute for red-teaming. Even with AGS, you red-team continuously. AGS narrows the attack surface from "prompt-layer ASR" (~100% on frontier models) to "structural ASR" (the policy + identity surface), which is orders of magnitude smaller. That structural surface is real and worth attacking: [`docs/red-team-2026-06-09.md`](docs/red-team-2026-06-09.md) red-teams the reference enforcer, names the bypass classes (resource-scope escape, deny shadowing, unenforced rings, self-asserted identity, forgeable audit), and is what the hardened `enforce.py` defends against.
 - Not a substitute for PDS / ACS / ESF / CRI / DCS. AGS is the protocol-layer substrate that governs whatever those describe.
 
 # Use it with Claude (or any AI coding agent)
@@ -308,7 +308,7 @@ The [`examples/`](examples/) directory has concrete artifacts:
 - [`policy-yaml.example.md`](examples/policy-yaml.example.md): what a production-grade policy file looks like (allow/deny/require-approval rules with conditions)
 - [`audit-record.example.json`](examples/audit-record.example.json): what an AGS audit-log entry looks like, with commitment anchoring
 - [`privilege-rings.md`](examples/privilege-rings.md): four-ring sandboxing model worked through for a typical agent fleet
-- [`enforce.py`](examples/enforce.py): a runnable, dependency-free demo of deterministic governance. It runs action requests through a deny-by-default policy (the decision is a pure function, no model), denies external email structurally, writes a hash-chained tamper-evident audit log, and shows the chain detecting an after-the-fact edit. Run it with `python3 examples/enforce.py`.
+- [`enforce.py`](examples/enforce.py): a runnable, dependency-free demo of deterministic governance. It runs action requests through a deny-by-default policy (the decision is a pure function, no model) with **deny-override** (an explicit deny beats any allow regardless of order), **enforced privilege rings** (a Ring 1 agent is denied a Ring 0 action), and **path-traversal canonicalization** (an allowed `kb/*` scope cannot be escaped with `..`). It writes a key-chained, head-sealed audit log and runs an attacker battery (in-place edit, forge-and-recompute without the key, truncation), showing each is caught. Run it with `python3 examples/enforce.py`. The bypass classes it defends against are documented in [`docs/red-team-2026-06-09.md`](docs/red-team-2026-06-09.md).
 
 Formal contracts live in [`schema/`](schema/): [`policy-rule.v1.json`](schema/policy-rule.v1.json) (the deny-by-default rule format) and [`policy-decision.v1.json`](schema/policy-decision.v1.json) (the tamper-evident audited decision record).
 
