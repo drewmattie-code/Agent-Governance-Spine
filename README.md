@@ -6,7 +6,7 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/spec-CC_BY_4.0-blue?style=flat-square)](LICENSE-CC-BY-4.0)
 [![License: MIT](https://img.shields.io/badge/code-MIT-green?style=flat-square)](LICENSE-MIT)
-[![Status: v1.1](https://img.shields.io/badge/status-v1.1-0F766E?style=flat-square)](SPEC.md)
+[![Status: v1.2](https://img.shields.io/badge/status-v1.2-0F766E?style=flat-square)](SPEC.md)
 [![Catalog: 5th spec](https://img.shields.io/badge/catalog-5th_spec-7C3AED?style=flat-square)](#catalog)
 
 </div>
@@ -212,6 +212,10 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 **Promptfoo, the production red-teaming counterpart to academic AGS citations.** Used by OpenAI and Anthropic for prompt/agent eval, red-teaming, and vulnerability scanning. Complements AGS's academic empirical citations (JailbreakBench, Andriushchenko ICLR 2025) with the production-deployed eval and red-teaming framework that frontier labs actually use. [Source](https://github.com/promptfoo/promptfoo)
 
 **Inspect (UK AI Security Institute).** Sovereign-grade LLM eval framework: the framework UK AISI and US AISI use for frontier-model assessments. Complements AGS's academic empirical citations (JailbreakBench, Andriushchenko ICLR 2025) with sovereign-government-agency-grade institutional credibility. [Source](https://github.com/UKGovernmentBEIS/inspect_ai)
+
+**Microsoft eXecution Container (MXC).** A sandboxed code-execution system for running untrusted code (model output, plugins, tools) across Windows, Linux, and macOS, with policy-driven isolation (filesystem, network, UI) and pluggable backends (Windows Sandbox, LXC, Bubblewrap, macOS Seatbelt, VMs). A Microsoft-backed instance of AGS principle #5 (sandboxed execution as a resource boundary), alongside e2b and Daytona, from the same vendor that supplies AGS's Agent Governance Toolkit citation. [Source](https://github.com/microsoft/mxc)
+
+**goose (Agentic AI Foundation / Linux Foundation).** The open-source agent runtime, now stewarded by the Linux Foundation's Agentic AI Foundation alongside MCP and AGENTS.md, ships runtime-level permission and approval controls (ask-before-execute, allowlists, mode gating). That is a permission-gating primitive at the "ask the human" altitude; AGS is the deterministic enterprise layer above any such runtime, formalizing it into deterministic policy, per-agent identity, and tamper-evident audit. The OSS local-runtime substrate AGS enforces against. [Source](https://github.com/aaif-goose/goose)
 
 ## Buyer-facing and practitioner convergence (the pattern stated by others)
 
