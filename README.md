@@ -6,7 +6,8 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/spec-CC_BY_4.0-blue?style=flat-square)](LICENSE-CC-BY-4.0)
 [![License: MIT](https://img.shields.io/badge/code-MIT-green?style=flat-square)](LICENSE-MIT)
-[![Status: v1.2](https://img.shields.io/badge/status-v1.2-0F766E?style=flat-square)](SPEC.md)
+[![Status: v1.3](https://img.shields.io/badge/status-v1.3-0F766E?style=flat-square)](SPEC.md)
+[![spec checks](https://github.com/drewmattie-code/Agent-Governance-Spine/actions/workflows/spec-checks.yml/badge.svg)](https://github.com/drewmattie-code/Agent-Governance-Spine/actions/workflows/spec-checks.yml)
 [![Catalog: 5th spec](https://img.shields.io/badge/catalog-5th_spec-7C3AED?style=flat-square)](#catalog)
 
 </div>
@@ -110,9 +111,11 @@ PDS, ACS, ESF, CRI describe *how data and coordination flow through* an agent sy
 
 The catalog now spans nine specs. Three private/forthcoming siblings round it out: **GDS (Grounded Data Spine)**, a canonical semantic model (text-to-metric) plus data-level entitlements; **ARS (Agent Registry Spine)**, the system of record layer for every agentic asset that discovery reads from and governance enforces against; and **SRS (Sovereign Runtime Spine)**, the execution substrate, the sovereign first-party agent runtime that first-party agents run ON (outside agents and tools plug INTO the spine; first-party agents run on SRS). See the [Catalog](#catalog) section for the full nine-spec listing.
 
+**The two tiers, and the two doors.** The nine layers group into two tiers: a **foundation tier** (DCS · GDS · ARS · SRS — the substrates: continuity, grounding, the system of record, execution) and a **capability tier** (PDS · ACS · ESF · CRI · AGS — the capabilities: discovery, coordination, world signals, scoring, governance). And there are exactly two ways anything reaches an agent estate; the catalog governs both. **Door 1: outside applications plug INTO the Spine** — any third-party agent, tool, or AI application connects through governed boundaries: discovered through one curated surface (PDS), every action policy-gated and audited (AGS), the data grounded and entitlement-scoped (GDS), tracked in one system of record (ARS). **Door 2: first-party agents run ON the Spine** — on the sovereign runtime (SRS) that composes the whole catalog, identity-bound, isolated, and bounded by construction. The rendered map lives at [saasquach.ai/spine](https://saasquach.ai/spine).
+
 AGS composes directly with DCS, the durable-state sibling. The same per-agent identity AGS uses to authorize *actions* scopes DCS *memory* (identity-partitioned durable state), and the AGS tamper-evident audit log covers durable-memory writes, not just actions. Bad governance is an AGS failure; bad continuity is a DCS failure.
 
-# The 13 principles
+# The 14 principles
 
 | # | Principle | The shift |
 |---|---|---|
@@ -129,6 +132,7 @@ AGS composes directly with DCS, the durable-state sibling. The same per-agent id
 | 11 | **Cost and consumption governance** | Token consumption, spend, and data-flow volume are a first-class governance surface alongside policy, identity, and audit. Per-agent token budgets with hard ceilings, spend attributed to agent identity, cost-aware model routing, and runaway-loop alerting. |
 | 12 | **Human-in-the-loop approval gates** | Deterministic policy can require human approval or escalation for an action class. The governed bridge between autonomous action and human judgment, sitting alongside allow and deny as a first-class decision. |
 | 13 | **Purpose-based access control** | Beyond identity, role, attribute, and relationship, an entitlement can be granted to a declared purpose, with the rationale recorded per grant and evaluated against the requesting identity. Audit answers "why was this allowed," not just "who" (Palantir Foundry purpose-based access). |
+| 14 | **Activation-layer defense-in-depth** | Govern the model's activation space beneath the deterministic gate: control-vector steering toward the compliant region at inference, and refusal-direction integrity attestation as a promotion precondition. Probabilistic hardening under the deterministic floor — catches a model whose own safety has been ablated, which the output-boundary gate cannot see. |
 
 Full discussion of each principle, with problems, patterns, and implementation notes, lives in [SPEC.md](SPEC.md).
 
@@ -233,7 +237,7 @@ AGS is not a novel invention. It is a formalization of a pattern that policy-eng
 
 The sources above document INDIVIDUAL implementations and isolated primitives. AGS contributes:
 
-1. A unified set of **13 principles** mapped to documented failure modes
+1. A unified set of **14 principles** mapped to documented failure modes
 2. **Target SLAs** for production governance readiness
 3. An **8-step build sequence** from skeleton to first reference deployment
 4. **Anti-patterns** to avoid
@@ -299,7 +303,7 @@ curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Agent-Governance-Sp
   -o ~/.claude/skills/ags/SKILL.md
 ```
 
-After install, the skill auto-activates whenever you ask Claude about agent governance, policy enforcement, identity for agents, audit logs for AI systems, OWASP agentic risks, or any of the other triggering contexts. It diagnoses which of the four documented failure modes you're hitting and recommends which of the 13 principles to apply.
+After install, the skill auto-activates whenever you ask Claude about agent governance, policy enforcement, identity for agents, audit logs for AI systems, OWASP agentic risks, or any of the other triggering contexts. It diagnoses which of the four documented failure modes you're hitting and recommends which of the 14 principles to apply.
 
 # Examples
 
@@ -334,7 +338,7 @@ AGS is the fifth specification in the SaaSquach AI Labs architectural catalog, w
 - **[PDS: Progressive Discovery Spine](https://github.com/drewmattie-code/Progressive-Discovery-Spine)**, single-agent tool discovery
 - **[ACS: Adversarial Coordination Spine](https://github.com/drewmattie-code/Adversarial-Coordination-Spine)**, multi-agent coordination
 - **[ESF: External Signal Fabric](https://github.com/drewmattie-code/External-Signal-Fabric)**, external-world signal substrate
-- **[CRI: Composite Risk Index](https://github.com/drewmattie-code/Composite-Risk-Index)**, composite risk scoring *(private)*
+- **CRI: Composite Risk Index**, composite risk scoring *(private — normative summary available on request)*
 - **AGS: Agent Governance Spine** *(this spec)*, deterministic governance, identity, and audit
 - **[DCS: Durable Context Spine](https://github.com/drewmattie-code/Durable-Context-Spine)**, durable state and memory across sessions and time
 - **GDS: Grounded Data Spine** *(private)*, a canonical semantic model (text-to-metric) plus data-level entitlements

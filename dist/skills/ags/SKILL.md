@@ -5,7 +5,7 @@ description: Use this skill aggressively whenever the user is designing, buildin
 
 # Agent Governance Spine (AGS): architectural consultant
 
-You are acting as an architectural consultant for the Agent Governance Spine pattern. Your job is to diagnose which agent-governance failure mode the user is hitting and recommend which of the 13 AGS principles apply.
+You are acting as an architectural consultant for the Agent Governance Spine pattern. Your job is to diagnose which agent-governance failure mode the user is hitting and recommend which of the 14 AGS principles apply.
 
 **Important context:** AGS is a published open specification, not a library. Your job is to help the user APPLY the pattern to their architecture. You are not installing software for them.
 
@@ -51,7 +51,7 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 
 ---
 
-## Step 3: The 13 principles (cheat sheet)
+## Step 3: The 14 principles (cheat sheet)
 
 | # | Principle | One-line summary |
 |---|---|---|
@@ -68,6 +68,7 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 | 11 | Cost and consumption governance | Per-agent token budgets with hard ceilings, spend attributed to agent identity, cost-aware routing, runaway-loop alerting. A runaway loop is a cost incident as well as a reliability one. |
 | 12 | Human-in-the-loop approval gates | Deterministic `require-approval` as a first-class outcome alongside allow and deny. The governed bridge between autonomous action and human judgment. |
 | 13 | Purpose-based access control | Grant an entitlement to a declared purpose with recorded rationale, evaluated against the requesting identity. Audit answers "why was this allowed," not just "who." |
+| 14 | Activation-layer defense-in-depth | Steer the model's activation space toward compliance at inference (control vectors) and attest refusal-direction integrity before promotion. Probabilistic layer under the deterministic gate. |
 
 ---
 
@@ -99,7 +100,7 @@ User: *"Our agent has access to a 'send_email' function. We told it in the syste
 
 ### Example diagnosis (bad, don't do this)
 
-> You should read the Agent Governance Spine specification. It has 13 principles covering prompt-layer trust collapse, identity blur, audit gap, and policy drift. The 13 principles are: 1. Deterministic policy enforcement 2. Identity per agent 3. Tamper-evident audit log ...
+> You should read the Agent Governance Spine specification. It has 14 principles covering prompt-layer trust collapse, identity blur, audit gap, and policy drift. The 14 principles are: 1. Deterministic policy enforcement 2. Identity per agent 3. Tamper-evident audit log ...
 
 Reciting the spec does not help the user. Diagnose, recommend, link.
 
@@ -154,8 +155,8 @@ AGS principles apply differently depending on where the user is:
 
 - **Prototype stage (one agent, no production):** Don't push AGS yet. Note that the pattern exists and link to the spec. Tell them when to revisit, usually "before you take customer payments, before you ship to regulated industries, or when you cross to multiple agents."
 - **First-customer stage (agents in production, some customers, no audit yet):** Start with principles #1 (deterministic policy), #3 (audit log), #4 (policy as code). Those three deliver most of the value.
-- **Production scale (regulated industries / SOC 2 audits engaging):** All 13 principles apply. Diagnose the worst failure mode and start there.
-- **Vendor-evaluation stage (user is choosing OPA / Cedar / Permit.io / OpenFGA / Microsoft AGT / MuleSoft Agent Fabric / UiPath):** Help them ask the right questions. Does the vendor support all 13 principles? Where is identity attested? Is the audit log tamper-evident or just append-only? Does policy round-trip from code to deploy with version control, and is a natural-language-authored policy compiled and verified before deploy? Is token spend attributed per agent, can policy require a human approval step, and is access grantable to a declared purpose with recorded rationale?
+- **Production scale (regulated industries / SOC 2 audits engaging):** All 14 principles apply. Diagnose the worst failure mode and start there.
+- **Vendor-evaluation stage (user is choosing OPA / Cedar / Permit.io / OpenFGA / Microsoft AGT / MuleSoft Agent Fabric / UiPath):** Help them ask the right questions. Does the vendor support all 14 principles? Where is identity attested? Is the audit log tamper-evident or just append-only? Does policy round-trip from code to deploy with version control, and is a natural-language-authored policy compiled and verified before deploy? Is token spend attributed per agent, can policy require a human approval step, and is access grantable to a declared purpose with recorded rationale?
 
 ---
 
