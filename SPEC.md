@@ -1,9 +1,88 @@
 # Agent Governance Spine: Specification
 
-> **Status:** v1.3 · Drew Mattie · 2026-07-12
+> **Status:** v1.4 · Drew Mattie · 2026-07-17
 > **License:** [CC BY 4.0](LICENSE-CC-BY-4.0)
 
 This is the full technical specification for the Agent Governance Spine pattern. The [README](README.md) is the elevator pitch; this document is the build reference.
+
+---
+
+## Conformance
+
+The key words MUST, MUST NOT, SHOULD, SHOULD NOT, and MAY in this document are to be interpreted as described in BCP 14 ([RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174)) when, and only when, they appear in all capitals.
+
+This specification separates three tiers of guidance, and only the first confers conformance:
+
+1. **Required behaviour** — the numbered requirements below (AGS-R1 …). An implementation is AGS-conformant when it satisfies every MUST-level requirement.
+2. **Recommended implementation** — the patterns the principle discussions describe (SHOULD level). Departures are legitimate with documented rationale.
+3. **Illustrative technology** — named products and projects throughout this document (OPA, Cedar, SPIFFE, DIDs, Postgres hash chains, and the commercial platforms cited in the convergence sections) are examples only. Deploying a named component does not by itself make a layer conformant, and no requirement below depends on any specific vendor.
+
+### Normative requirements
+
+| ID | Requirement |
+|---|---|
+| AGS-R1 | Every agent action MUST pass deterministic policy evaluation before execution, co-located at the tool-mediation chokepoint; a denied action MUST NOT be executable by any path. |
+| AGS-R2 | Every agent MUST hold a stable, verifiable identity distinct from any human principal; shared or anonymous credentials MUST NOT be used. Human identity (IdP) and workload identity MUST both be preserved through every call. |
+| AGS-R3 | Every policy decision (allow, deny, escalate) MUST be recorded in an append-only, tamper-evident audit log written outside the agent's control. |
+| AGS-R4 | Policy MUST exist as versioned, lintable, testable code; policy MUST NOT live solely in prompts or prose. Natural-language authoring MAY be used only with machine verification of the compiled artifact before enforcement. |
+| AGS-R5 | Execution MUST occur in tiered privilege rings; a low-trust agent MUST NOT be able to reach high-trust resources. |
+| AGS-R6 | Every deployed agent MUST be monitored against an SLO and reachable by a human-operated kill switch. |
+| AGS-R7 | The tool supply chain MUST be monitored for poisoning, typosquatting, and manifest-versus-runtime drift. |
+| AGS-R8 | Shadow-asset discovery MUST run actively; unregistered agents reachable in production MUST trend to zero. |
+| AGS-R9 | Plugin and marketplace trust MUST be scored at the agent level. |
+| AGS-R10 | If post-training is controlled, governance priors SHOULD be trained into the model. |
+| AGS-R11 | Token, spend, and data-flow consumption MUST be attributed to agent identity with enforceable ceilings. |
+| AGS-R12 | Policy MUST support human-approval outcomes as first-class decisions alongside allow and deny. |
+| AGS-R13 | Entitlements MAY be granted to declared purposes; where used, the rationale MUST be recorded per grant and audited. |
+| AGS-R14 | Model integrity SHOULD be attested before promotion (refusal-direction battery); activation-layer controls are probabilistic hardening and MUST NOT substitute for R1. |
+| AGS-R15 | Delegation between agents MUST produce a delegation record per the schema below, MUST itself pass policy, and a child agent's authority MUST be a subset of its parent's — privileges MUST NOT increase because another agent requested the action. |
+| AGS-R16 | Every agent MUST be assigned an egress class from the taxonomy below, enforced at the network layer; the default class MUST be the most restrictive that permits the agent's declared purpose. |
+
+### Delegation and transitive authorization (normative)
+
+A delegation record MUST capture, at minimum:
+
+| Field | Content |
+|---|---|
+| Initiating human | The accountable human principal at the root of the chain |
+| Parent agent | Identity and version of the delegating agent |
+| Child agent | Identity and version of the receiving agent |
+| Delegated task | The precise task, not a general grant |
+| Allowed tools | Explicit tool list, a subset of the parent's |
+| Data scope | Entitlement scope, a subset of the parent's |
+| Budget | Token / spend / time ceilings |
+| Expiration | When the delegation dies on its own |
+| Sub-delegation | Whether further delegation is allowed (default: no) |
+| Approvals | Any human-approval requirements inherited or added |
+| Artifacts | Where the child's outputs land |
+
+### Egress classes (normative)
+
+| Class | Network reach |
+|---|---|
+| E0 | No network |
+| E1 | Internal APIs only |
+| E2 | Approved SaaS domains |
+| E3 | ESF broker only |
+| E4 | Sandboxed research (unrestricted inside a disposable sandbox, nothing persists without review) |
+| E5 | Human-approved one-time destination |
+
+An agent's egress class MUST be enforced by network policy, not by prompt instruction, and MUST be recorded in the registry.
+
+### "Structurally impossible" — the invariants to prove
+
+The central claim of this specification — that denied actions are structurally impossible, not merely unlikely — is **conditional**. It holds only while every one of the following invariants holds, and a deployment claiming AGS conformance MUST be able to demonstrate each:
+
+1. Every execution path is mediated — there is no connector, credential, or network route that bypasses the gateway.
+2. The gateway fails closed.
+3. Agent environments hold no static backend credentials.
+4. Network policy prevents direct backend access from agent runtimes.
+5. Policy changes are themselves policy-gated and audited — no silent administrative edits.
+6. Asynchronous and scheduled jobs pass through the same gate as interactive actions.
+7. Retries and replays are idempotent — a retried action cannot duplicate a state change.
+8. Approval callbacks are authenticated — an approval cannot be spoofed.
+
+Treat these as invariants to prove in your deployment, not properties acquired by installing a policy engine. This specification's own adversarial review ([docs/red-team-2026-06-09.md](docs/red-team-2026-06-09.md)) documents five reproduced bypasses that arose precisely from gaps in these invariants, and the hardened reference enforcer that closes them.
 
 ---
 
@@ -478,6 +557,7 @@ This specification follows semantic versioning. Breaking changes to the conceptu
 - **v1.1** (2026-06-02): added four principles across three same-day consolidations, bringing the count from ten to thirteen: #11 (cost and consumption governance), #12 (human-in-the-loop approval gates), #13 (purpose-based access control, the Palantir Foundry purpose-based-access pattern: an entitlement granted to a declared purpose with recorded rationale, evaluated against the requesting identity and audited against the purpose). Enriched principle #1 (deterministic enforcement co-located with the tool-mediation chokepoint, the same point PDS uses for discovery — AgentCore Policy enforced at the AgentCore Gateway) and principle #4 (natural-language-front, formal-language-back policy authoring with an automated-reasoning verification pass on the compiled artifact before deploy). Added SRS (Sovereign Runtime Spine) as the ninth spec — the private/forthcoming execution substrate that first-party agents run ON (outside agents and tools plug INTO the spine) — taking the catalog to nine specs and the failure-attribution dictionary to ten-way ("bad or unbounded execution → SRS"). Added convergence citations: Anthropic "Zero Trust for AI Agents", MuleSoft Agent Fabric, UiPath AI Trust Layer, OpenFGA, Cerbos, e2b, Daytona, Composio, MCP server registry, Langfuse, Pydantic Logfire, Promptfoo, Inspect (UK AISI), the OpenAI Codex harness, the Anthropic self-hosted sandboxes cookbook, the Av1d multi-agent workflows field guide, AgentCore Policy, and Palantir purpose-based access. Added the DCS composition cross-reference. *(Editorial note, 2026-07-16: three same-day v1.1 entries consolidated into this one per the semver policy above; content unchanged.)*
 - **v1.2** (2026-06-08): added two convergence citations to the README industry-context section. Microsoft eXecution Container (MXC), a Microsoft-backed instance of principle #5 (sandboxed execution as a resource boundary, alongside e2b and Daytona), from the same vendor as the Agent Governance Toolkit citation. And goose, the open-source agent runtime now stewarded by the Linux Foundation's Agentic AI Foundation, as the OSS local-runtime permission-gating substrate AGS enforces against. No principle changes; catalog stays nine specs, attribution ten-way.
 - **v1.3** (2026-07-12): added principle #14 (activation-layer defense-in-depth), bringing the count to fourteen. Governs the model's activation space as a probabilistic hardening and integrity-attestation layer beneath the deterministic gate of principle #1: control-vector steering toward the compliant region at inference, and refusal-direction integrity attestation as a promotion precondition. Motivated by the refusal-direction / abliteration result that a model's learned safety is a cheaply-removable direction in open weights, which the output-boundary gate cannot see. Composes with principle #10 (train-time governance prior) as its inference-time sibling, threads a model-integrity signal into CRI, and defines the white-box tier of the Spine Gate conformance battery. Added refusal-direction ablation, representation engineering, and control-vector tooling to the convergence citations. Catalog stays nine specs; principle count fourteen.
+- **v1.4** (2026-07-17): added the Conformance section — BCP 14 keywords, the required / recommended / illustrative three-tier separation, and numbered normative requirements AGS-R1–R16. New normative material: the delegation-record schema and transitive-authorization rule (child authority a subset of the parent's, delegation itself policy-gated) as R15; the six-class egress taxonomy (E0–E5, network-enforced, most-restrictive default) as R16; and the “invariants to prove” checklist making explicit the eight preconditions under which the structurally-impossible claim holds, cross-referenced to the 2026-06-09 red-team review. Prompted in part by an external CIO architecture review (2026-07-17). No changes to the fourteen principles.
 
 ---
 

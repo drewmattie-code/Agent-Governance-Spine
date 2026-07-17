@@ -6,7 +6,7 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/spec-CC_BY_4.0-blue?style=flat-square)](LICENSE-CC-BY-4.0)
 [![License: MIT](https://img.shields.io/badge/code-MIT-green?style=flat-square)](LICENSE-MIT)
-[![Status: v1.3](https://img.shields.io/badge/status-v1.3-0F766E?style=flat-square)](SPEC.md)
+[![Status: v1.4](https://img.shields.io/badge/status-v1.4-0F766E?style=flat-square)](SPEC.md)
 [![spec checks](https://github.com/drewmattie-code/Agent-Governance-Spine/actions/workflows/spec-checks.yml/badge.svg)](https://github.com/drewmattie-code/Agent-Governance-Spine/actions/workflows/spec-checks.yml)
 [![Catalog: 5th spec](https://img.shields.io/badge/catalog-5th_spec-7C3AED?style=flat-square)](#catalog)
 
