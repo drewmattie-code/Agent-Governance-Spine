@@ -77,7 +77,7 @@ If they're hitting multiple, walk through them in order of severity. Prompt-laye
 Once you've identified the failure mode, your output should:
 
 1. **State the failure mode by name** so the user gets the vocabulary
-2. **Point to 2-3 specific principles** that address it (don't dump all 10)
+2. **Point to 2-3 specific principles** that address it (don't dump all 14)
 3. **Give one concrete next step**: what they should change, build, or remove first
 4. **Cite the empirical case** if the user is skeptical about deterministic enforcement (JailbreakBench, Andriushchenko, Microsoft Red Team; see Step 6)
 5. **Link to the spec** for full discussion: `https://github.com/drewmattie-code/Agent-Governance-Spine/blob/main/SPEC.md`

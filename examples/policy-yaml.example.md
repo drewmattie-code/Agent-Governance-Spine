@@ -35,9 +35,9 @@ rules:
     description: "Read-only supplier scorecard / contract queries are allowed for any authenticated agent in the same tenant."
     priority: 100
     when:
-      action.type: in: [query_supplier, get_scorecard, get_contract, list_open_approvals]
-      principal.identity.tenant_id: matches: target.tenant_id
-      principal.ring: in: [0, 1, 2, 3]  # any ring; read-only is broadly safe
+      action.type: { in: [query_supplier, get_scorecard, get_contract, list_open_approvals] }
+      principal.identity.tenant_id: { matches: target.tenant_id }
+      principal.ring: { in: [0, 1, 2, 3] }  # any ring; read-only is broadly safe
     decision: allow
     audit:
       retention_days: 2555  # 7 years for SOC 2
@@ -48,7 +48,7 @@ rules:
     priority: 50
     when:
       action.type: issue_approval
-      action.value_usd: greater_than: 100000
+      action.value_usd: { greater_than: 100000 }
     decision: require_approval
     approvers:
       - role: vp_finance
@@ -64,7 +64,7 @@ rules:
     description: "ClawGentics LOA is append-only. No agent - at any ring - can delete or modify historical approval records."
     priority: 1
     when:
-      action.type: in: [delete_approval, modify_approval_history, truncate_audit, drop_audit_table]
+      action.type: { in: [delete_approval, modify_approval_history, truncate_audit, drop_audit_table] }
     decision: deny
     audit:
       retention_days: 2555
@@ -76,7 +76,7 @@ rules:
     description: "Identity layer already enforces tenant scoping. This rule is defense-in-depth - explicit deny on any action where principal tenant != target tenant."
     priority: 1
     when:
-      principal.identity.tenant_id: not_equals: target.tenant_id
+      principal.identity.tenant_id: { not_equals: target.tenant_id }
     decision: deny
     audit:
       retention_days: 2555
@@ -88,9 +88,9 @@ rules:
     description: "Agents with composite trust score > 0.9 can read across tenants in their assigned governance domain (e.g., ClawGentics-LOA-as-a-product team)."
     priority: 75
     when:
-      action.type: in: [query_supplier, get_scorecard]
-      principal.trust_score: greater_than: 0.9
-      principal.governance_domain: equals: "clawgentics-loa-platform"
+      action.type: { in: [query_supplier, get_scorecard] }
+      principal.trust_score: { greater_than: 0.9 }
+      principal.governance_domain: { equals: "clawgentics-loa-platform" }
     decision: allow
     audit:
       retention_days: 2555
@@ -101,7 +101,7 @@ rules:
     priority: 60
     when:
       action.type: send_email
-      action.recipient_domain: not_in: ["charlesandroe.com", "saasquach.ai"]
+      action.recipient_domain: { not_in: ["charlesandroe.com", "saasquach.ai"] }
     decision: require_approval
     approvers:
       - role: comms_lead
@@ -114,7 +114,7 @@ rules:
     description: "Tool poisoning detection: only tools in the signed manifest can be invoked. Anything outside the manifest is denied."
     priority: 5
     when:
-      action.tool_name: not_in_manifest: "policies/tool-manifest-v3.signed.json"
+      action.tool_name: { not_in_manifest: "policies/tool-manifest-v3.signed.json" }
     decision: deny
     audit:
       retention_days: 2555

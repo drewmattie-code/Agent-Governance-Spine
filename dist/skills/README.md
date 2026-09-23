@@ -30,15 +30,13 @@ It will NOT install software, pretend to be a runnable library, or recite the wh
 AGS is one of nine specifications in the same architectural catalog (PDS, ACS, ESF, AGS, DCS public; CRI, GDS, ARS, SRS private/forthcoming). Install the public skills for full coverage:
 
 ```bash
-mkdir -p ~/.claude/skills/{pds,acs,esf,cri,ags,dcs}
+mkdir -p ~/.claude/skills/{pds,acs,esf,ags,dcs}
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Progressive-Discovery-Spine/main/dist/skills/pds/SKILL.md \
   -o ~/.claude/skills/pds/SKILL.md
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/External-Signal-Fabric/main/dist/skills/esf/SKILL.md \
   -o ~/.claude/skills/esf/SKILL.md
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Adversarial-Coordination-Spine/main/dist/skills/acs/SKILL.md \
   -o ~/.claude/skills/acs/SKILL.md
-curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Composite-Risk-Index/main/dist/skills/cri/SKILL.md \
-  -o ~/.claude/skills/cri/SKILL.md
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Agent-Governance-Spine/main/dist/skills/ags/SKILL.md \
   -o ~/.claude/skills/ags/SKILL.md
 curl -fsSL https://raw.githubusercontent.com/drewmattie-code/Durable-Context-Spine/main/dist/skills/dcs/SKILL.md \
@@ -57,7 +55,7 @@ For agents that don't natively support the skills convention, the SKILL.md is al
 
 ## Versioning
 
-The skill version tracks the spec version. Current: v1.1 (matches SPEC.md v1.1).
+The skill version tracks the spec version. Current: v1.4 (matches SPEC.md v1.4).
 
 When the spec evolves, the skill evolves with it. Watch this repo for updates.
 
